@@ -284,28 +284,40 @@ async function fetchMarket(env) {
     }
   } catch (e) { out.error = "coingecko: " + e.message; }
 
-  // --- Sparkline via CoinGecko OHLC (single array, more datacenter-friendly
-  // than market_chart, and gives clean hourly points). ---
-  try {
-    const r = await fetch(
-      "https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=1",
-      { headers: { "User-Agent": "Mozilla/5.0 PascualHub", "Accept": "application/json" }, cf: { cacheTtl: 120 } }
-    );
-    const d = await safeJ(r);
-    // OHLC rows: [timestamp, open, high, low, close]; use close.
-    if (Array.isArray(d) && d.length) out.spark = d.map(row => Number(row[4])).filter(n => !Number.isNaN(n));
-  } catch (_) {}
-
-  // Fallback sparkline: if OHLC failed, try market_chart prices.
-  if (!out.spark.length) {
+  // --- OHLC per coin: reliable from datacenter IPs (simple/price above gets
+  // throttled). OHLC gives the sparkline AND lets us derive price + 24h change
+  // (close-of-last vs open-of-first). We fetch BTC's OHLC always (for the chart)
+  // and, if simple/price gave nothing, derive ALL coin prices from OHLC. ---
+  const ohlc = async (id) => {
     try {
       const r = await fetch(
-        "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1",
+        `https://api.coingecko.com/api/v3/coins/${id}/ohlc?vs_currency=usd&days=1`,
         { headers: { "User-Agent": "Mozilla/5.0 PascualHub", "Accept": "application/json" }, cf: { cacheTtl: 120 } }
       );
       const d = await safeJ(r);
-      if (d && Array.isArray(d.prices)) out.spark = d.prices.map(p => Number(p[1])).filter(n => !Number.isNaN(n));
-    } catch (_) {}
+      return Array.isArray(d) && d.length ? d : null;
+    } catch (_) { return null; }
+  };
+
+  // BTC sparkline (always).
+  const btcOhlc = await ohlc("bitcoin");
+  if (btcOhlc) out.spark = btcOhlc.map(row => Number(row[4])).filter(n => !Number.isNaN(n));
+
+  // If simple/price failed, build all 4 coin prices from OHLC (close now, open ~24h ago).
+  if (!out.coins.length) {
+    const meta = [["bitcoin", "BTC", "Bitcoin"], ["ethereum", "ETH", "Ethereum"], ["solana", "SOL", "Solana"]];
+    for (const [id, sym, name] of meta) {
+      const rows = id === "bitcoin" ? btcOhlc : await ohlc(id);
+      if (rows && rows.length) {
+        const open = Number(rows[0][1]), close = Number(rows[rows.length - 1][4]);
+        const chg = open ? ((close - open) / open) * 100 : 0;
+        out.coins.push({ id, symbol: sym, name, price: close, change24h: chg });
+      }
+    }
+    if (out.coins.length) {
+      out.coins.push({ id: "usd-coin", symbol: "USDC", name: "USD Coin", price: 1, change24h: 0 });
+      out.src = "CoinGecko (OHLC)";
+    }
   }
 
   // If this fetch is incomplete (throttled), prefer the last-good snapshot:
