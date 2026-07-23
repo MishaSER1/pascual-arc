@@ -1,68 +1,68 @@
-# Pascual — агентная экономика на Arc / Circle
+# Pascual — Agentic Economy on Arc / Circle
 
-Работающий продукт для экосистемы **Arc (Circle L1)**: браузерное расширение + веб-терминал + ончейн-агент, замкнутые в единую петлю агентной экономики.
+A working product for the **Arc (Circle L1)** ecosystem: a browser extension + a web terminal + an on-chain agent, closed into a single agentic-economy loop.
 
-> **Одной фразой:** пользователь анализирует посты в X через AI-расширение → каждый анализ автоматически становится **проверяемой ончейн-услугой** (задание ERC-8183), выполненной зарегистрированным агентом (ERC-8004), с оплатой в USDC (x402).
+> **In one line:** a user analyzes X posts through an AI extension → each analysis automatically becomes a **verifiable on-chain service** (an ERC-8183 job) performed by a registered agent (ERC-8004), paid in USDC (x402).
 
-## Что это доказывает
+## What this proves
 
-Большинство заявок показывают идею. Здесь — **живая агентная активность в сети**:
-- Агент **#4713** зарегистрирован в ERC-8004 (Identity Registry) на Arc testnet.
-- **10+ реальных заданий ERC-8183** созданы автоматически из работы пользователя.
-- Оплата за анализ — кредитами **USDC по x402** (EIP-3009).
-- Всё видно в интерфейсе (терминал-дашборд), без выдуманных данных.
+Most submissions show an idea. This shows **live agent activity on-chain**:
+- Agent **#4713** is registered in ERC-8004 (Identity Registry) on Arc testnet.
+- **10+ real ERC-8183 jobs** created automatically from the user's work.
+- Payment per analysis via **USDC credits over x402** (EIP-3009).
+- Everything is visible in the interface (terminal dashboard), with no fabricated data.
 
-## Архитектура
+## Architecture
 
 ```
-Расширение (Chrome MV3)  ──анализ──►  Хаб (Cloudflare Worker + Pages)  ──очередь──►  Мост (ПК, приват.ключ)
-   AI-анализ X                          терминал + X Cockpit                          подпись транзакций
-                                              ▲                                              │ createJob
-                                              │ читает ERC-8004/8183 состояние               ▼
-                                              └──────────────────────────────────  Arc testnet (ERC-8183 job)
+Extension (Chrome MV3)  ──analysis──►  Hub (Cloudflare Worker + Pages)  ──queue──►  Bridge (PC, private key)
+   AI X analysis                         terminal + X Cockpit                        signs transactions
+                                              ▲                                            │ createJob
+                                              │ reads ERC-8004/8183 state                  ▼
+                                              └────────────────────────────────  Arc testnet (ERC-8183 job)
 ```
 
-Мост подписывает транзакции локально (там приватный ключ агента — его нельзя класть в облако). Хаб и расширение — в облаке, доступны всем.
+The bridge signs transactions locally (that's where the agent's private key lives — it must never go to the cloud). The hub and extension run in the cloud, publicly accessible.
 
-## Компоненты
+## Components
 
-| Папка | Что это |
+| Folder | What it is |
 |---|---|
-| `reply-x-pro/` | Chrome-расширение (AI-ответы, анализ, сентимент, оплата USDC x402) + его Cloudflare Worker |
-| `hub/` | Веб-терминал (Cloudflare Pages) + API-Worker: вход по кошельку, Wallet Radar, Signal Feed, панели ARC AGENT / Agentic Commerce / Marketplace |
-| `hub/arc.js` | Read-only ридер Arc-контрактов (ERC-8004/8183) на чистом JS, без библиотек |
-| `hub/agent-bridge/` | Мост Python↔Arc: замыкает петлю анализ→задание (`bridge.py loop`) |
-| `1_..5_*.py` | Ончейн-скрипты: entity secret, регистрация ERC-8004, жизненный цикл ERC-8183, x402-клиент маркетплейса agents.circle.com |
+| `reply-x-pro/` | Chrome extension (AI replies, analysis, sentiment, USDC x402 payments) + its Cloudflare Worker |
+| `hub/` | Web terminal (Cloudflare Pages) + API Worker: wallet sign-in, Wallet Radar, Signal Feed, ARC AGENT / Agentic Commerce / Marketplace panels |
+| `hub/arc.js` | Read-only Arc contract reader (ERC-8004/8183) in pure JS, no libraries |
+| `hub/agent-bridge/` | Python↔Arc bridge: closes the analysis→job loop (`bridge.py loop`) |
+| `1_..5_*.py` | On-chain scripts: entity secret, ERC-8004 registration, ERC-8183 job lifecycle, x402 client for the agents.circle.com marketplace |
 
-## Технологии Arc / Circle
+## Arc / Circle technologies
 
-- **ERC-8004** — идентичность агента (IdentityRegistry `0x8004A818…BD9e`), репутация, валидация.
-- **ERC-8183** — жизненный цикл заданий (AgenticCommerce `0x0747EEf0…4583`), эскроу USDC.
-- **x402** — оплата за запрос в USDC (EIP-3009 `transferWithAuthorization`), маркетплейс agents.circle.com.
-- **USDC** — газ и расчёты (Arc testnet chain 5042002).
+- **ERC-8004** — agent identity (IdentityRegistry `0x8004A818…BD9e`), reputation, validation.
+- **ERC-8183** — job lifecycle (AgenticCommerce `0x0747EEf0…4583`), USDC escrow.
+- **x402** — pay-per-request in USDC (EIP-3009 `transferWithAuthorization`), agents.circle.com marketplace.
+- **USDC** — gas and settlement (Arc testnet chain 5042002).
 
-## Запуск
+## Running it
 
-Секреты в репозиторий не входят (см. `.gitignore`). Скопируй `.env.example` → `.env`, заполни своими ключами.
-Ончейн-скрипты используют абсолютные пути `d:\Soft\Arc\…` — при клонировании в другое место замени их на свои.
+Secrets are never committed (see `.gitignore`). Copy `.env.example` → `.env` and fill in your own keys.
+The on-chain scripts use absolute paths `d:\Soft\Arc\…` — replace them with your own if you clone elsewhere.
 
-- **Расширение:** `chrome://extensions` → Load unpacked → `reply-x-pro/`
-- **Хаб:** `cd hub` → см. `hub/DEPLOY-PHASE5.md` (wrangler deploy + pages deploy)
-- **Мост (петля):** `cd hub/agent-bridge` → `python bridge.py loop` (см. его README)
-- **Ончейн-скрипты:** `pip install -r requirements.txt`, затем `python 1_..3_*.py` по порядку
+- **Extension:** `chrome://extensions` → Load unpacked → `reply-x-pro/`
+- **Hub:** `cd hub` → see `hub/DEPLOY-PHASE5.md` (wrangler deploy + pages deploy)
+- **Bridge (loop):** `cd hub/agent-bridge` → `python bridge.py loop` (see its README)
+- **On-chain scripts:** `pip install -r requirements.txt`, then `python 1_..3_*.py` in order
 
-## Безопасность
+## Security
 
-- Приватные ключи, токены, прокси — только в `.env` (в git не попадает).
-- Мост запускается локально; ключ никогда не уходит в облако.
-- Расширение анализирует только видимый пользователю DOM; ничего не постит само.
+- Private keys, tokens, proxies live only in `.env` (never enters git).
+- The bridge runs locally; the key never leaves your machine.
+- The extension only analyzes the DOM the user already sees; it never posts on its own.
 
-## Статус
+## Status
 
-Демо-стадия: техническая петля работает end-to-end, задания реальны в Arc testnet.
-Дальше: агент 24/7 (мост на VPS), многопользовательский режим (Circle Programmable Wallets).
+Demo stage: the technical loop works end-to-end, jobs are real on Arc testnet.
+Next: agent 24/7 (bridge on a VPS), multi-user mode (Circle Programmable Wallets).
 
-## Ссылки
+## Links
 
 - Arc docs: https://docs.arc.network
 - Circle console: https://console.circle.com

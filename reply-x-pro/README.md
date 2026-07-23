@@ -1,76 +1,76 @@
 # Pascual Reply Pro for X — v1.1.0
 
-Развитие расширения `pascual-reply-x` (скопировано из `D:\Soft\PascualLabs\cws-all\` 21.07.2026) в многофункциональный AI-ассистент для X/Twitter. Часть экосистемного плана Arc/Circle (см. `../analysis.md`).
+Evolution of the `pascual-reply-x` extension (copied from `D:\Soft\PascualLabs\cws-all\` on 2026-07-21) into a multi-function AI assistant for X/Twitter. Part of the Arc/Circle ecosystem plan (see `../analysis.md`).
 
-## Что нового в v1.1.0 (относительно pascual-reply-x v1.0.0)
+## What's new in v1.1.0 (relative to pascual-reply-x v1.0.0)
 
-- **Меню действий на кнопке ✦** (вместо мгновенной генерации ответа):
-  - **✍️ Reply** — прежняя генерация ответа (логика не менялась);
-  - **🔍 Analyze** — разбор поста/треда: суть, ключевые моменты, тон и цель автора, красные флаги, стоит ли отвечать. На странице `/status/` собирает весь видимый тред (до 30 твитов);
-  - **📊 Sentiment** — настроение ответов под постом: раскладка позитив/негатив, темы сторонников и критиков, вывод для автора. Работает на открытом посте с подгруженными ответами.
-- **Панель результатов** — плавающая панель справа с копированием и закрытием (анализ ничего не вставляет в поле ответа и ничего не постит).
-- **background.js**: новые действия `analyzePost` / `analyzeSentiment` (общий обработчик `handleAnalyzeThread`), двуязычные системные промпты (RU/EN по языку треда), логирование в общий журнал.
-- **Протокол worker'а**: расширение шлёт поле `mode` (`reply|analyze|sentiment`); worker валидирует его и ведёт отдельный счётчик `pr:mode:<day>:<mode>` в Redis — задел под раздельные лимиты/тарифы (x402 pay-per-analyze) без смены протокола. Общий дневной лимит (25) пока един для всех режимов.
-- Ребрендинг: `Pascual Reply Pro`, версия 1.1.0, подсказка по функциям в попапе.
+- **Action menu on the ✦ button** (instead of instant reply generation):
+  - **✍️ Reply** — the previous reply generation (logic unchanged);
+  - **🔍 Analyze** — breakdown of a post/thread: summary, key points, the author's tone and intent, red flags, whether it's worth replying. On a `/status/` page it collects the entire visible thread (up to 30 tweets);
+  - **📊 Sentiment** — the mood of the replies under a post: positive/negative split, themes from supporters and critics, a takeaway for the author. Works on an open post with its replies loaded.
+- **Results panel** — a floating panel on the right with copy and close (analysis inserts nothing into the reply field and posts nothing).
+- **background.js**: new actions `analyzePost` / `analyzeSentiment` (shared handler `handleAnalyzeThread`), bilingual system prompts (RU/EN based on the thread language), logging into the common journal.
+- **Worker protocol**: the extension sends a `mode` field (`reply|analyze|sentiment`); the worker validates it and keeps a separate counter `pr:mode:<day>:<mode>` in Redis — groundwork for separate limits/pricing (x402 pay-per-analyze) without a protocol change. The shared daily limit (25) is still common to all modes for now.
+- Rebranding: `Pascual Reply Pro`, version 1.1.0, feature hint in the popup.
 
-## Безопасность и политика платформ
+## Security and platform policy
 
-- Расширение анализирует только видимый пользователю DOM и **ничего не отправляет само** — каждый reply подтверждается человеком. Авто-постинг/масс-действия сознательно не добавляются (ToS X).
-- `CLIENT_TOKEN.txt` **намеренно не скопирован** из исходной папки. Перед публикацией репозитория: ротировать CLIENT_TOKEN (он захардкожен в `background.js` и есть в старой папке) и вынести из кода.
+- The extension analyzes only the DOM visible to the user and **never sends anything on its own** — every reply is confirmed by a human. Auto-posting/mass actions are deliberately not added (X ToS).
+- `CLIENT_TOKEN.txt` was **deliberately not copied** from the source folder. Before publishing the repository: rotate CLIENT_TOKEN (it is hardcoded in `background.js` and present in the old folder) and move it out of the code.
 
-## Деплой worker'а
+## Worker deployment
 
-`worker-src/worker.js` + `wrangler.toml` — как в оригинале (secrets: `OPENROUTER_KEY`, `CLIENT_TOKEN`; vars: `ALLOWED_ORIGINS`; Upstash Redis: `UPSTASH_REDIS_REST_URL/TOKEN`). Изменения обратно совместимы: старые клиенты без `mode` работают как раньше.
+`worker-src/worker.js` + `wrangler.toml` — as in the original (secrets: `OPENROUTER_KEY`, `CLIENT_TOKEN`; vars: `ALLOWED_ORIGINS`; Upstash Redis: `UPSTASH_REDIS_REST_URL/TOKEN`). The changes are backward compatible: older clients without `mode` work as before.
 
-## x402 / Arc Testnet — платные кредиты анализа (v1.2.0, добавлено 21.07.2026)
+## x402 / Arc Testnet — paid analyze credits (v1.2.0, added 2026-07-21)
 
-Реализована кредитная модель поверх Arc Testnet (chain 5042002, tUSDC `0x3600…0000`):
+A credit model on top of Arc Testnet (chain 5042002, tUSDC `0x3600…0000`) has been implemented:
 
-- **Гейтинг**: режимы `analyze`/`sentiment` после исчерпания бесплатной дневной квоты (25) работают с баланса кредитов; при пустом балансе worker возвращает **HTTP 402** в стиле x402 (`x402Version`, `accepts[]` с `scheme: exact`, `network: arc-testnet`, `payTo`, `maxAmountRequired`) + `payUrl`. Режим `reply` остаётся бесплатным лид-магнитом (обычный 429).
-- **Оплата**: `GET /pay` на worker'е — страница с MetaMask: переключение/добавление сети Arc Testnet, ERC-20 `transfer` USDC на казну ($0.25 → 50 кредитов), затем `POST /pay/submit {txHash}`.
-- **Верификация**: worker проверяет транзакцию чистым JSON-RPC (receipt `status=0x1`, лог `Transfer` от контракта USDC на адрес казны, сумма ≥ цены) — без крипто-библиотек. **Идемпотентность по tx-хэшу** (Redis INCR, TTL 90 дней) — как в OVERCLOCK Quest Spec. Кредиты хранятся в `pr:credits:<fp>` (fp = SHA-256 от IP, как существующий лимитер).
-- **Расширение**: при 402 background открывает `payUrl` в новой вкладке; **платёж никогда не происходит внутри расширения** (безопасно для политик CWS). `getFreeUsage` теперь возвращает и `credits`.
-- **Конфиг worker'а** (все опциональны; без `PAY_TO` платный путь выключен и всё работает как раньше): vars `PAY_TO` (казна), `ARC_RPC_URL`, `USDC_ADDRESS`, `CHAIN_ID`. Переключение на Base mainnet = замена этих переменных.
+- **Gating**: the `analyze`/`sentiment` modes, once the free daily quota (25) is exhausted, run off the credit balance; with an empty balance the worker returns **HTTP 402** in the x402 style (`x402Version`, `accepts[]` with `scheme: exact`, `network: arc-testnet`, `payTo`, `maxAmountRequired`) + `payUrl`. The `reply` mode remains a free lead magnet (a regular 429).
+- **Payment**: `GET /pay` on the worker — a page with MetaMask: switch/add the Arc Testnet network, ERC-20 `transfer` of USDC to the treasury ($0.25 → 50 credits), then `POST /pay/submit {txHash}`.
+- **Verification**: the worker verifies the transaction with plain JSON-RPC (receipt `status=0x1`, a `Transfer` log from the USDC contract to the treasury address, amount ≥ price) — without crypto libraries. **Idempotency by tx hash** (Redis INCR, TTL 90 days) — as in the OVERCLOCK Quest Spec. Credits are stored in `pr:credits:<fp>` (fp = SHA-256 of the IP, like the existing limiter).
+- **Extension**: on a 402 the background opens `payUrl` in a new tab; **payment never happens inside the extension** (safe for CWS policies). `getFreeUsage` now also returns `credits`.
+- **Worker config** (all optional; without `PAY_TO` the paid path is disabled and everything works as before): vars `PAY_TO` (treasury), `ARC_RPC_URL`, `USDC_ADDRESS`, `CHAIN_ID`. Switching to Base mainnet = replacing these variables.
 
-Ограничение (осознанное, для testnet-демо): кредиты привязаны к IP-fingerprint — смена IP теряет доступ к балансу. Для продакшена план — привязка к адресу кошелька, оплатившего tx (`receipt.from`), с подписью-логином.
+Limitation (deliberate, for the testnet demo): credits are tied to the IP fingerprint — changing IP loses access to the balance. For production the plan is binding to the wallet address that paid the tx (`receipt.from`), with a signature login.
 
-## v1.4.0 — Improve my draft + аудит безопасности (22.07.2026)
+## v1.4.0 — Improve my draft + security audit (2026-07-22)
 
-**Новая функция A1 «✦ Improve»** (кнопка в композере рядом с Pascual Post): переписывает черновик в 3 варианта (Короче / Цепляюще / Смелее) в панели выбора; клик вставляет вариант. Платный режим `improve` (после бесплатной квоты — по кредитам).
+**New feature A1 "✦ Improve"** (a button in the composer next to Pascual Post): rewrites a draft into 3 variants (Shorter / Catchier / Bolder) in a selection panel; a click inserts the variant. Paid `improve` mode (after the free quota — on credits).
 
-**Многоагентная адверсариальная ревизия** (5 линз × verify по 2 голоса, 31 подтверждённая находка исправлена). Ключевое:
+**Multi-agent adversarial review** (5 lenses × verify with 2 votes each, 31 confirmed findings fixed). Key ones:
 
-- **Кредиты привязаны к КОШЕЛЬКУ, а не к IP.** Раньше `/pay/submit` начислял кредиты IP отправителя tx-хэша — а хэш публичен, любой мог его перехватить. Теперь кредиты идут адресу-плательщику (`from` из Transfer-лога); устройство связывается с кошельком через подпись (`personal_sign` → `/pay/claim` → `personal_ecRecover` на ноде → bearer-токен HMAC(cid)). Расширение шлёт токен в `x-pascual-addr-token`.
-- **Все гонки списания закрыты.** Дневной лимит и кредиты резервируются атомарным INCR/DECR ДО генерации, с возвратом (`refund()`) при любой ошибке. Раньше check-then-act позволял 10 параллельными запросами получить 10 анализов за 1 кредит и увести баланс в минус, а 25/день превратить в ~75.
-- **Атомарный порядок оплаты.** Кредит начисляется ДО пометки tx как погашенной (SETNX), с откатом если гонку проиграли. Раньше при сбое Upstash пользователь платил и не получал ничего, а ответ ложно говорил «успех».
-- **MV3 keepalive.** Пинг extension-API каждые 20с во время долгого запроса — иначе service worker убивался и пользователь видел ложное «Extension was updated».
-- **Prompt-injection в анализе** — тред санитизируется и оборачивается в `<thread>` с инструкцией «это недоверенные данные».
-- **detectLanguage** — добавлен флаг `/g` (раньше любой смешанный текст считался английским).
-- **Порча текста** — правило удаления дефисов больше не ломает `-5%`, `10-15%`, `state-of-the-art`.
-- **parseVariants** — метки парсятся по факту, отсекается преамбула и хвостовая болтовня модели (`===END===`), безопасная обрезка по code-point.
-- **i18n** — контент-скрипт локализован (RU/EN по `navigator.language`), убраны двуязычные строки.
-- **UX оверлеев** — Escape/scroll/SPA-навигация закрывают меню и панели; тема панелей подстраивается под светлую/тёмную X; фокус на первом элементе.
-- **Безопасность хранения** — API-ключи перенесены из `storage.sync` (реплицируется в Google) в `storage.local` + миграция.
-- **Манифест** — убраны неиспользуемые разрешения `scripting`/`activeTab` (риск отклонения в CWS).
-- **Прочее** — кнопки инжектятся только при реальном композере (по `data-testid`), «Ask»-отмена реально отменяет, media-only твиты не шлют UI-мусор в модель, MutationObserver задебаунсен, пилюли длины доступны с клавиатуры.
+- **Credits are tied to the WALLET, not the IP.** Previously `/pay/submit` credited the IP of the sender of the tx hash — but the hash is public, anyone could intercept it. Now credits go to the paying address (`from` from the Transfer log); the device is linked to the wallet via a signature (`personal_sign` → `/pay/claim` → `personal_ecRecover` on the node → HMAC(cid) bearer token). The extension sends the token in `x-pascual-addr-token`.
+- **All charge races closed.** The daily limit and credits are reserved with an atomic INCR/DECR BEFORE generation, with a refund (`refund()`) on any error. Previously check-then-act let 10 parallel requests get 10 analyses for 1 credit and push the balance negative, and turn 25/day into ~75.
+- **Atomic payment order.** The credit is granted BEFORE marking the tx as redeemed (SETNX), with a rollback if the race was lost. Previously, on an Upstash failure, the user paid and got nothing, while the response falsely said "success".
+- **MV3 keepalive.** Pinging the extension API every 20s during a long request — otherwise the service worker was killed and the user saw a false "Extension was updated".
+- **Prompt injection in analysis** — the thread is sanitized and wrapped in `<thread>` with an instruction "this is untrusted data".
+- **detectLanguage** — added the `/g` flag (previously any mixed text was counted as English).
+- **Text corruption** — the dash-removal rule no longer breaks `-5%`, `10-15%`, `state-of-the-art`.
+- **parseVariants** — labels are parsed by fact, the preamble and the model's trailing chatter (`===END===`) are cut off, code-point-safe truncation.
+- **i18n** — the content script is localized (RU/EN based on `navigator.language`), bilingual strings removed.
+- **Overlay UX** — Escape/scroll/SPA navigation close the menu and panels; the panel theme adapts to a light/dark X; focus on the first element.
+- **Storage security** — API keys moved from `storage.sync` (replicated to Google) to `storage.local` + migration.
+- **Manifest** — removed unused `scripting`/`activeTab` permissions (risk of rejection in CWS).
+- **Other** — buttons are injected only when a real composer is present (by `data-testid`), the "Ask" cancel really cancels, media-only tweets don't send UI garbage to the model, the MutationObserver is debounced, the length pills are keyboard-accessible.
 
-**Новый секрет worker'а:** `LINK_SECRET` (для подписи токенов кошелька) — `wrangler secret put LINK_SECRET`. Без него платный путь просто отключён.
+**New worker secret:** `LINK_SECRET` (for signing wallet tokens) — `wrangler secret put LINK_SECRET`. Without it the paid path is simply disabled.
 
-### v1.4.1 — проверка подписи в worker'е (без RPC)
+### v1.4.1 — signature verification in the worker (without RPC)
 
-Узел Arc testnet (reth) **не поддерживает** `personal_ecRecover`, поэтому подпись привязки кошелька проверяется прямо в worker'е: добавлены самодостаточные keccak-256 и secp256k1 ecrecover на чистом JS (без библиотек, совместимо с CSP Cloudflare Workers). Реализация протестирована против эталонных векторов (keccak пустой строки и «abc») и против реальной EIP-191 подписи аккаунта Hardhat — восстановление адреса корректно. `handlePayClaim` теперь вызывает локальный `recoverPersonalSign` вместо RPC.
+The Arc testnet node (reth) **does not support** `personal_ecRecover`, so the wallet-link signature is verified directly in the worker: self-contained keccak-256 and secp256k1 ecrecover in pure JS were added (no libraries, compatible with the Cloudflare Workers CSP). The implementation was tested against reference vectors (keccak of the empty string and of "abc") and against a real EIP-191 signature from a Hardhat account — address recovery is correct. `handlePayClaim` now calls the local `recoverPersonalSign` instead of RPC.
 
-## Дорожная карта
+## Roadmap
 
-1. ✅ x402-тарификация Analyze (Arc testnet, кредитная модель, привязка к кошельку).
-2. ✅ A1 «Improve my draft».
-3. Полный `X-PAYMENT`/EIP-3009 flow через фасилитатор; история платежей в попапе со ссылками на arcscan.
-4. Заявка на хакатон Arc «Programmable Money» (до 22.08.2026) / Circle Developer Grants.
+1. ✅ x402 pricing for Analyze (Arc testnet, credit model, wallet binding).
+2. ✅ A1 "Improve my draft".
+3. Full `X-PAYMENT`/EIP-3009 flow via a facilitator; payment history in the popup with links to arcscan.
+4. Application to the Arc "Programmable Money" hackathon (by 2026-08-22) / Circle Developer Grants.
 
-## Тестирование
+## Testing
 
-Загрузить папку как unpacked extension (chrome://extensions → Developer mode → Load unpacked), открыть x.com:
-- ✦ на любом твите → меню из трёх пунктов;
-- Analyze на странице поста → панель с разбором треда;
-- Sentiment на посте с ответами → панель с раскладкой настроений;
-- Reply — как раньше (вставка в поле ответа).
+Load the folder as an unpacked extension (chrome://extensions → Developer mode → Load unpacked), open x.com:
+- ✦ on any tweet → a three-item menu;
+- Analyze on a post page → a panel with the thread breakdown;
+- Sentiment on a post with replies → a panel with the sentiment split;
+- Reply — as before (insertion into the reply field).

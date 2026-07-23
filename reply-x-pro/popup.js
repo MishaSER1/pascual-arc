@@ -364,8 +364,15 @@ document.addEventListener("DOMContentLoaded", () => {
     chrome.runtime.sendMessage({ action: "hubStatus" }, (r) => {
       if (chrome.runtime.lastError) return;
       const linked = r && r.linked;
-      if (hubStatusEl) { hubStatusEl.textContent = linked ? "✓ подключено" : "не подключено"; hubStatusEl.style.color = linked ? "var(--accent-2)" : "var(--muted)"; }
-      if (hubLinkLabel) hubLinkLabel.textContent = linked ? "Отвязать от терминала" : (currentLang === "ru" ? "Привязать кошелёк к терминалу" : "Link wallet to Terminal");
+      if (hubStatusEl) {
+        hubStatusEl.textContent = linked
+          ? (currentLang === "ru" ? "✓ подключено" : "✓ connected")
+          : (currentLang === "ru" ? "не подключено" : "not connected");
+        hubStatusEl.style.color = linked ? "var(--accent-2)" : "var(--muted)";
+      }
+      if (hubLinkLabel) hubLinkLabel.textContent = linked
+        ? (currentLang === "ru" ? "Отвязать от терминала" : "Unlink from Terminal")
+        : (currentLang === "ru" ? "Привязать кошелёк к терминалу" : "Link wallet to Terminal");
     });
   }
   if (hubLinkBtn) {

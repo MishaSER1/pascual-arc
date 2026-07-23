@@ -1,62 +1,62 @@
 # Pascual Agent Bridge
 
-Локальный мост между ончейн-скриптами Arc (1–5 в `d:\Soft\Arc`) и веб-дашбордом.
+A local bridge between the Arc on-chain scripts (1–5 in `d:\Soft\Arc`) and the web dashboard.
 
-## Зачем
+## Why
 
-Хаб (Cloudflare Worker) читает состояние Arc **только на чтение** — это безопасно и работает уже сейчас (панели ARC AGENT / Agentic Commerce берут данные напрямую из сети). Но **запись** — регистрация агента, создание ERC-8183 задания из X-анализа, оплата x402 — требует приватных ключей, прокси и faucet, которые должны оставаться на твоей машине. Мост даёт эти возможности по localhost, не отправляя ключи никуда.
+The hub (Cloudflare Worker) reads Arc state **read-only** — this is safe and already works now (the ARC AGENT / Agentic Commerce panels take data directly from the network). But **writing** — registering the agent, creating an ERC-8183 job from an X analysis, paying x402 — requires private keys, a proxy, and a faucet, which must stay on your machine. The bridge exposes these capabilities over localhost without sending keys anywhere.
 
-## Что делает
+## What it does
 
-- `GET /health` — жив ли мост, включены ли записи.
-- `GET /agent` — отдаёт `agent_state.json` + `job_state.json` (для дашборда/отладки).
-- `POST /create-job` — **заготовка**: принимает `job_hash` (keccak256 анализа, который хаб уже считает при ingest) и должен создать реальное ERC-8183 задание через `3_create_job.py`. Оставлено тебе на доработку, потому что это движет реальные testnet-USDC в эскроу — такое действие должно быть явным, а не авто-вызовом из веба.
+- `GET /health` — whether the bridge is alive and whether writes are enabled.
+- `GET /agent` — serves `agent_state.json` + `job_state.json` (for the dashboard/debugging).
+- `POST /create-job` — a **stub**: accepts `job_hash` (the keccak256 of the analysis, which the hub already computes at ingest) and is supposed to create a real ERC-8183 job via `3_create_job.py`. Left for you to complete, because it moves real testnet USDC into escrow — such an action should be explicit, not an auto-call from the web.
 
-## Запуск
+## Running
 
 ```powershell
 cd D:\Soft\Arc\hub\agent-bridge
 pip install fastapi uvicorn web3 eth-account python-dotenv pycryptodome
-$env:BRIDGE_TOKEN = "любая-длинная-строка"   # без него записи запрещены
+$env:BRIDGE_TOKEN = "any-long-string"        # without it, writes are forbidden
 python bridge.py                              # http://127.0.0.1:8799
 ```
 
-Проверка: открой `http://127.0.0.1:8799/health` — увидишь `{"ok":true,...}`.
+Check: open `http://127.0.0.1:8799/health` — you'll see `{"ok":true,...}`.
 
-## Безопасность
+## Security
 
-- Слушает **только 127.0.0.1** — никогда не выставляй в интернет.
-- Каждый вызов требует заголовок `x-bridge-token` = твой `BRIDGE_TOKEN`.
-- Ключи читаются из того же `.env`, что и скрипты; наружу не уходят.
-- `create-job` намеренно заглушка — фактическую tx (эскроу USDC) запускаешь ты, подтверждая осознанно.
+- Listens **only on 127.0.0.1** — never expose it to the internet.
+- Every call requires the header `x-bridge-token` = your `BRIDGE_TOKEN`.
+- Keys are read from the same `.env` as the scripts; they never go outside.
+- `create-job` is intentionally a stub — you launch the actual tx (USDC escrow) yourself, confirming deliberately.
 
-## Автономная петля: анализ → ERC-8183 задание (ГОТОВО)
+## Autonomous loop: analysis → ERC-8183 job (DONE)
 
-Теперь мост может **сам** замыкать петлю: опрашивает хаб на анализы без ончейн-записи и создаёт для каждого ERC-8183 задание с реальным deliverable-хэшем.
+The bridge can now **close the loop itself**: it polls the hub for analyses without an on-chain record and creates an ERC-8183 job for each, with a real deliverable hash.
 
 ```powershell
 cd D:\Soft\Arc\hub\agent-bridge
-$env:HUB_TOKEN = "<токен сессии хаба>"   # см. ниже, откуда взять
+$env:HUB_TOKEN = "<hub session token>"   # see below for where to get it
 python bridge.py loop
 ```
 
-**Откуда взять HUB_TOKEN:** зайди на pascual-hub.pages.dev кошельком → F12 → Console → `localStorage.getItem('pascual_hub_token')` → скопируй значение. (Живёт 7 дней.)
+**Where to get HUB_TOKEN:** log in to pascual-hub.pages.dev with your wallet → F12 → Console → `localStorage.getItem('pascual_hub_token')` → copy the value. (Lives 7 days.)
 
-Что делает loop (каждые 120с, настраивается `LOOP_INTERVAL`):
-1. `GET /api/x/pending` — берёт анализы, у которых есть `job_hash`, но нет `anchored_job`.
-2. Для каждого запускает `3_create_job.py` с `JOB_DELIVERABLE=<хэш>` — полный цикл createJob→fund→submit(deliverable)→complete, **реальные tUSDC** в эскроу (5 USDC/задание по умолчанию).
-3. `POST /api/x/anchor` — отмечает анализ как записанный (job_id), чтобы не создавать дубль.
+What loop does (every 120s, configurable via `LOOP_INTERVAL`):
+1. `GET /api/x/pending` — takes analyses that have a `job_hash` but no `anchored_job`.
+2. For each, runs `3_create_job.py` with `JOB_DELIVERABLE=<hash>` — the full cycle createJob→fund→submit(deliverable)→complete, **real tUSDC** in escrow (5 USDC/job by default).
+3. `POST /api/x/anchor` — marks the analysis as recorded (job_id) so as not to create a duplicate.
 
-⚠️ Каждое задание тратит тестовые USDC (эскроу). Держи баланс на owner-кошельке (faucet). Останови loop (Ctrl+C) когда не нужен.
+⚠️ Each job spends test USDC (escrow). Keep a balance on the owner wallet (faucet). Stop the loop (Ctrl+C) when you don't need it.
 
-## Разовое создание задания вручную (без loop)
+## One-off manual job creation (without loop)
 
-`POST /create-job` (нужен `x-bridge-token`), тело: `{"job_hash":"0x…","confirm":true}` → запускает `3_create_job.py`, возвращает `job_id`.
+`POST /create-job` (needs `x-bridge-token`), body: `{"job_hash":"0x…","confirm":true}` → runs `3_create_job.py`, returns `job_id`.
 
-## Как это связано со скриптом
+## How this connects to the script
 
-`3_create_job.py` теперь читает env-переменную `JOB_DELIVERABLE` (0x… keccak256 анализа). Если не задана — работает как раньше (демо-хэш), ручной запуск не сломан.
+`3_create_job.py` now reads the env variable `JOB_DELIVERABLE` (0x… keccak256 of the analysis). If it's not set — it works as before (a demo hash), the manual run isn't broken.
 
-## Заметка про зависимости
+## Note on dependencies
 
-В корневом `requirements.txt` не хватает `eth-account` и `pycryptodome` (нужны скриптам). Команда `pip install` выше их добавляет.
+The root `requirements.txt` is missing `eth-account` and `pycryptodome` (needed by the scripts). The `pip install` command above adds them.

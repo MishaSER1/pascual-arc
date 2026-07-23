@@ -379,13 +379,13 @@ async function callAiApi(messages, config, systemPrompt = "", requestMode = "rep
       const payUrl = base + "#link=" + encodeURIComponent(cid);
       try { chrome.tabs.create({ url: payUrl }); } catch (_) {}
       pollLinkToken(cid); // fire-and-forget; stores addr_token when linked
-      throw new Error((data && data.error) || "Analyze credits exhausted — payment page opened in a new tab. / Кредиты анализа закончились — страница оплаты открыта в новой вкладке.");
+      throw new Error((data && data.error) || "Analyze credits exhausted — payment page opened in a new tab.");
     }
 
     // Server enforces the daily limit; surface its message (429 = limit hit).
     if (resp.status === 429) {
       recordFreeUsage(typeof data?.used === "number" ? data.used : undefined);
-      throw new Error((data && data.error) || "Daily free limit reached. Add your own API key for unlimited use. / Дневной лимит бесплатного режима исчерпан. Добавьте свой API-ключ.");
+      throw new Error((data && data.error) || "Daily free limit reached. Add your own API key for unlimited use.");
     }
     if (!resp.ok) {
       throw new Error((data && data.error) || `Proxy error: HTTP ${resp.status}`);
@@ -393,7 +393,7 @@ async function callAiApi(messages, config, systemPrompt = "", requestMode = "rep
 
     const replyText = data.reply?.trim();
     if (!replyText) {
-      const errMsg = data.error || data.message || "Empty reply from proxy server. / Сервер вернул пустой ответ.";
+      const errMsg = data.error || data.message || "Empty reply from proxy server.";
       throw new Error(errMsg);
     }
 
@@ -407,7 +407,7 @@ async function callAiApi(messages, config, systemPrompt = "", requestMode = "rep
 
   // Свой API-ключ. Никогда не сообщаем баланс кредитов (запрос не платный).
   if (!config.key) {
-    throw new Error(`API key for provider "${config.provider}" is not set. / API-ключ для провайдера "${config.provider}" не задан.`);
+    throw new Error(`API key for provider "${config.provider}" is not set.`);
   }
 
   let text;
@@ -453,7 +453,7 @@ async function makeOpenAiCompatibleCall(url, key, model, messages, systemPrompt 
   });
 
   if (resp.status === 429) {
-    throw new Error("Rate limit reached on the provider (HTTP 429). Please wait a moment and try again. / Провайдер вернул лимит запросов (429). Подождите немного и повторите.");
+    throw new Error("Rate limit reached on the provider (HTTP 429). Please wait a moment and try again.");
   }
   const data = await safeJson(resp);
   if (!resp.ok) {
@@ -511,7 +511,7 @@ async function makeAnthropicCall(key, model, messages, systemPrompt = "") {
   });
 
   if (resp.status === 429) {
-    throw new Error("Rate limit reached on Anthropic (HTTP 429). Please wait a moment and try again. / Anthropic вернул лимит запросов (429). Подождите немного и повторите.");
+    throw new Error("Rate limit reached on Anthropic (HTTP 429). Please wait a moment and try again.");
   }
   const data = await safeJson(resp);
   if (!resp.ok) {
@@ -853,7 +853,7 @@ function parseVariants(raw, lang, draft = "") {
 
 async function handleImproveDraft(draft) {
   draft = String(draft || "").trim();
-  if (!draft) throw new Error("Empty draft. / Пустой черновик.");
+  if (!draft) throw new Error("Empty draft.");
   if (draft.length > 2000) draft = draft.substring(0, 2000);
 
   const config = await getApiConfig();
@@ -899,7 +899,7 @@ STRICT RULES:
 
   const aiResp = await callAiApi(messages, config, systemPrompt, "improve");
   const variants = parseVariants(aiResp.text, lang, draft);
-  if (!variants.length) throw new Error("Model returned nothing usable, try again. / Модель не вернула вариантов, попробуйте ещё раз.");
+  if (!variants.length) throw new Error("Model returned nothing usable, try again.");
 
   logTweet(variants.map(v => `[${v.label}] ${v.text}`).join("\n"), "improve", {
     draft: draft.substring(0, 100),
@@ -913,7 +913,7 @@ STRICT RULES:
 // ===== Анализ поста/треда и сентимента ответов =====
 async function handleAnalyzeThread(thread, kind) {
   if (!Array.isArray(thread) || thread.length === 0) {
-    throw new Error("No thread content provided. / Нет контента для анализа.");
+    throw new Error("No thread content provided.");
   }
   const config = await getApiConfig();
 
@@ -1285,7 +1285,7 @@ ${tweetsText}
   }
   
   if (looksLikeInstructionLeak(finalTweet)) {
-    throw new Error("The free model returned instructions instead of a tweet. Try again, or switch to your own API key in settings. / Модель вернула инструкции вместо твита. Повторите или подключите свой API-ключ.");
+    throw new Error("The free model returned instructions instead of a tweet. Try again, or switch to your own API key in settings.");
   }
 
   logTweet(finalTweet, 'tweet', {
@@ -1399,7 +1399,7 @@ Text: ${postData.text}
   }
   
   if (looksLikeInstructionLeak(finalTweet)) {
-    throw new Error("The free model returned instructions instead of a tweet. Try again, or switch to your own API key in settings. / Модель вернула инструкции вместо твита. Повторите или подключите свой API-ключ.");
+    throw new Error("The free model returned instructions instead of a tweet. Try again, or switch to your own API key in settings.");
   }
 
   logTweet(finalTweet, 'tweetFromPost', {

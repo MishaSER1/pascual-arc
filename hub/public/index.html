@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -139,7 +139,7 @@
 <!-- TICKER -->
 <div class="tape">
   <span class="lbl">LIVE</span>
-  <div class="track" id="ticker"><span class="tk mut">загрузка рынка…</span></div>
+  <div class="track" id="ticker"><span class="tk mut">loading market…</span></div>
 </div>
 
 <header>
@@ -148,19 +148,19 @@
     <span class="live"><span class="dot"></span>LIVE</span>
     <span id="clock" class="who mono">--:--:--</span>
     <span id="who" class="who hidden"></span>
-    <button id="themeBtn" class="btn-ghost" title="Тема">◐</button>
-    <button id="logoutBtn" class="btn-ghost hidden">Выйти</button>
+    <button id="themeBtn" class="btn-ghost" title="Theme">◐</button>
+    <button id="logoutBtn" class="btn-ghost hidden">Log out</button>
   </div>
 </header>
 
 <!-- SIGN IN -->
 <main id="signinView">
   <div class="signin">
-    <h1>Вход по кошельку</h1>
-    <p>Никаких паролей. Подпишите сообщение своим кошельком — и вы внутри.</p>
-    <button id="connectBtn" class="btn-primary">Подключить кошелёк</button>
+    <h1>Sign in with wallet</h1>
+    <p>No passwords. Sign a message with your wallet — and you're in.</p>
+    <button id="connectBtn" class="btn-primary">Connect wallet</button>
     <div id="status"></div>
-    <div class="note">Подпись бесплатна и не отправляет транзакцию. Мы восстанавливаем ваш адрес из подписи — приватный ключ никогда не покидает кошелёк.</div>
+    <div class="note">Signing is free and does not send a transaction. We recover your address from the signature — your private key never leaves your wallet.</div>
   </div>
 </main>
 
@@ -169,14 +169,14 @@
   <div class="grid">
     <!-- Wallet snapshot (real data) -->
     <div class="panel">
-      <div class="ptitle"><span>◢ КОШЕЛЁК · ETHEREUM</span><span class="tag" id="meAddr">—</span></div>
+      <div class="ptitle"><span>◢ WALLET · ETHEREUM</span><span class="tag" id="meAddr">—</span></div>
       <div class="v mono" id="meBalance" style="font-size:30px;font-weight:700;">—</div>
-      <div class="mut" id="meBalanceSub">нативный баланс подключённого кошелька</div>
+      <div class="mut" id="meBalanceSub">native balance of the connected wallet</div>
       <div class="strip">
-        <div class="s"><div class="k">Токенов</div><div class="v" id="meTokens">—</div></div>
-        <div class="s"><div class="k">На слежении</div><div class="v" id="statWatch">0</div></div>
-        <div class="s"><div class="k">Сеть</div><div class="v" style="font-size:13px;">ETH</div></div>
-        <div class="s"><div class="k">Статус</div><div class="v up" style="font-size:13px;">ONLINE</div></div>
+        <div class="s"><div class="k">Tokens</div><div class="v" id="meTokens">—</div></div>
+        <div class="s"><div class="k">Watched</div><div class="v" id="statWatch">0</div></div>
+        <div class="s"><div class="k">Network</div><div class="v" style="font-size:13px;">ETH</div></div>
+        <div class="s"><div class="k">Status</div><div class="v up" style="font-size:13px;">ONLINE</div></div>
       </div>
     </div>
     <!-- BTC market panel (real sparkline) -->
@@ -192,8 +192,8 @@
     </div>
     <!-- Onchain activity — real transfers of the connected wallet -->
     <div class="panel span2">
-      <div class="ptitle"><span>◢ ONCHAIN ACTIVITY · ТВОЙ КОШЕЛЁК</span><span class="r"><span class="tag" id="actNet">ETHEREUM</span><span class="live"><span class="dot"></span>LIVE</span></span></div>
-      <div id="actList" class="wlist"><div class="mut" style="padding:10px;">Загрузка активности…</div></div>
+      <div class="ptitle"><span>◢ ONCHAIN ACTIVITY · YOUR WALLET</span><span class="r"><span class="tag" id="actNet">ETHEREUM</span><span class="live"><span class="dot"></span>LIVE</span></span></div>
+      <div id="actList" class="wlist"><div class="mut" style="padding:10px;">Loading activity…</div></div>
     </div>
 
     <!-- ARC AGENT — real ERC-8004 on-chain state -->
@@ -204,9 +204,9 @@
         <div><div class="k" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Owner</div><div class="mono" id="agOwner" style="font-size:14px;margin-top:8px;">—</div></div>
       </div>
       <div class="strip">
-        <div class="s"><div class="k">Заданий (8183)</div><div class="v" id="agJobs">—</div></div>
-        <div class="s"><div class="k">Репутация</div><div class="v" id="agRep">—</div></div>
-        <div class="s"><div class="k">Метаданные</div><div class="v" id="agMeta" style="font-size:12px;">—</div></div>
+        <div class="s"><div class="k">Jobs (8183)</div><div class="v" id="agJobs">—</div></div>
+        <div class="s"><div class="k">Reputation</div><div class="v" id="agRep">—</div></div>
+        <div class="s"><div class="k">Metadata</div><div class="v" id="agMeta" style="font-size:12px;">—</div></div>
         <div class="s"><div class="k">Explorer</div><div class="v" style="font-size:12px;"><a id="agLink" href="#" target="_blank" rel="noopener">arcscan ↗</a></div></div>
       </div>
     </div>
@@ -214,45 +214,45 @@
     <!-- AGENTIC COMMERCE — ERC-8183 jobs -->
     <div class="panel span2">
       <div class="ptitle"><span>◢ AGENTIC COMMERCE · ERC-8183 JOBS</span><span class="tag" id="agJobsTag">—</span></div>
-      <div id="agJobList" class="wlist"><div class="mut" style="padding:10px;">Загрузка заданий из сети…</div></div>
+      <div id="agJobList" class="wlist"><div class="mut" style="padding:10px;">Loading jobs from the network…</div></div>
     </div>
 
     <!-- AGENT MARKETPLACE — x402 -->
     <div class="panel span2">
       <div class="ptitle"><span>◢ AGENT MARKETPLACE · x402 · PAY-PER-CALL USDC</span><span class="r"><span class="tag amber">BASE 8453</span><span class="tag" id="mktTag">—</span></span></div>
-      <div class="mut" style="margin-bottom:10px;">Сервисы, которые агент может вызывать за USDC по протоколу x402 (EIP-3009). Оплата за запрос, без подписок.</div>
+      <div class="mut" style="margin-bottom:10px;">Services an agent can call for USDC via the x402 protocol (EIP-3009). Pay per request, no subscriptions.</div>
       <div id="mktGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;"></div>
     </div>
 
     <!-- PREDICTION MARKETS — real Polymarket data via free service -->
     <div class="panel span2">
       <div class="ptitle"><span>◢ PREDICTION MARKETS · POLYMARKET</span><span class="r"><span class="tag up">FREE · LIVE</span></span></div>
-      <div class="mut" style="margin-bottom:10px;">Реальные активные рынки — барометр настроений. Данные из бесплатного сервиса каталога (без оплаты).</div>
-      <div id="predList" class="wlist"><div class="mut" style="padding:10px;">Загрузка рынков…</div></div>
+      <div class="mut" style="margin-bottom:10px;">Real active markets — a sentiment barometer. Data from a free catalog service (no payment).</div>
+      <div id="predList" class="wlist"><div class="mut" style="padding:10px;">Loading markets…</div></div>
     </div>
   </div>
 
   <h2>Wallet Radar</h2>
   <div class="addrow">
-    <input id="wInput" placeholder="0x… адрес кошелька" spellcheck="false" />
-    <input id="wLabel" placeholder="метка (необязательно)" style="flex:0 0 180px;min-width:120px;" />
+    <input id="wInput" placeholder="0x… wallet address" spellcheck="false" />
+    <input id="wLabel" placeholder="label (optional)" style="flex:0 0 180px;min-width:120px;" />
     <select id="chainSel"></select>
-    <button id="addBtn" class="btn-primary">Добавить</button>
+    <button id="addBtn" class="btn-primary">Add</button>
   </div>
   <div id="wlist" class="wlist"></div>
 
   <h2>Signal Feed</h2>
   <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-    <button id="digestBtn" class="btn-primary">✦ AI-сводка дня</button>
-    <button id="refreshNews" class="btn-ghost">Обновить</button>
+    <button id="digestBtn" class="btn-primary">✦ AI daily digest</button>
+    <button id="refreshNews" class="btn-ghost">Refresh</button>
   </div>
   <div id="digestBox" class="digest hidden"></div>
-  <div id="news" class="news"><div class="mut" style="padding:14px;">Загрузка новостей…</div></div>
+  <div id="news" class="news"><div class="mut" style="padding:14px;">Loading news…</div></div>
 
   <h2>X Cockpit</h2>
-  <div id="xitems" class="wlist"><div class="empty">Анализы из расширения Pascual Reply Pro появятся здесь. Привяжите кошелёк в расширении (кнопка «Привязать к терминалу»).</div></div>
+  <div id="xitems" class="wlist"><div class="empty">Analyses from the Pascual Reply Pro extension will appear here. Link your wallet in the extension (the "Link to terminal" button).</div></div>
 
-  <div class="foot">Данные on-chain — публичные, бесплатные. X-данные будут поступать только из вашего браузера через расширение. Никакого серверного скрапинга.</div>
+  <div class="foot">On-chain data is public and free. X data will come only from your browser via the extension. No server-side scraping.</div>
 </main>
 
 <script>
@@ -271,19 +271,19 @@ function authHeaders() { return token ? { "Authorization": "Bearer " + token } :
 
 async function connect() {
   try {
-    if (!window.ethereum) { setStatus("Кошелёк не найден. Установите MetaMask.", "err"); return; }
+    if (!window.ethereum) { setStatus("Wallet not found. Install MetaMask.", "err"); return; }
     $("connectBtn").disabled = true;
-    setStatus("Подключение…");
+    setStatus("Connecting…");
     const [addr] = await ethereum.request({ method: "eth_requestAccounts" });
     const a = addr.toLowerCase();
-    setStatus("Запрос nonce…");
+    setStatus("Requesting nonce…");
     const nr = await fetch(api("/api/auth/nonce?address=" + a));
     const nd = await nr.json();
     if (!nr.ok) throw new Error(nd.error || "nonce error");
-    setStatus("Подпишите сообщение в кошельке…");
+    setStatus("Sign the message in your wallet…");
     const msgHex = "0x" + Array.from(new TextEncoder().encode(nd.message)).map(b => b.toString(16).padStart(2, "0")).join("");
     const signature = await ethereum.request({ method: "personal_sign", params: [msgHex, addr] });
-    setStatus("Проверка подписи…");
+    setStatus("Verifying signature…");
     const vr = await fetch(api("/api/auth/verify"), {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address: a, signature })
@@ -296,7 +296,7 @@ async function connect() {
     setStatus("");
     showDashboard();
   } catch (e) {
-    setStatus(e.message || "Ошибка входа", "err");
+    setStatus(e.message || "Sign-in error", "err");
   } finally {
     $("connectBtn").disabled = false;
   }
@@ -346,15 +346,15 @@ async function loadActivity() {
     const d = await r.json();
     const tx = d.transfers || [];
     if (!tx.length) {
-      box.innerHTML = '<div class="empty">' + (d.error ? escapeHtml(d.error) : 'Транзакций не найдено для этого кошелька на Ethereum.') + '</div>';
+      box.innerHTML = '<div class="empty">' + (d.error ? escapeHtml(d.error) : 'No transactions found for this wallet on Ethereum.') + '</div>';
       return;
     }
     box.innerHTML = "";
-    const SHOWN = 5; // сколько показываем сразу; остальное — под кнопкой
+    const SHOWN = 5; // how many to show at once; the rest go under the button
     tx.forEach((t, i) => {
       const row = document.createElement("div");
       row.className = "tx";
-      if (i >= SHOWN) row.classList.add("hidden"); // прячем «хвост»
+      if (i >= SHOWN) row.classList.add("hidden"); // hide the "tail"
       const when = t.ts ? timeAgo(t.ts) : "";
       const other = t.dir === "in" ? t.from : t.to;
       const val = (t.value != null) ? (Number(t.value).toPrecision(4) + " " + (t.asset || "")) : (t.asset || "");
@@ -366,25 +366,25 @@ async function loadActivity() {
         '<span class="val"><a href="' + escapeAttr(exp) + '" target="_blank" rel="noopener">' + escapeHtml(val) + '</a></span>';
       box.appendChild(row);
     });
-    // Кнопка «показать ещё», если транзакций больше 5.
+    // "Show more" button if there are more than 5 transactions.
     if (tx.length > SHOWN) {
       const more = document.createElement("button");
       more.className = "btn-ghost";
       more.style.cssText = "width:100%;margin-top:8px;";
       const rest = tx.length - SHOWN;
-      more.textContent = "Показать ещё " + rest + " ▾";
+      more.textContent = "Show " + rest + " more ▾";
       let expanded = false;
       more.onclick = () => {
         expanded = !expanded;
         box.querySelectorAll(".tx").forEach((el, idx) => {
           if (idx >= SHOWN) el.classList.toggle("hidden", !expanded);
         });
-        more.textContent = expanded ? "Свернуть ▴" : ("Показать ещё " + rest + " ▾");
+        more.textContent = expanded ? "Collapse ▴" : ("Show " + rest + " more ▾");
       };
       box.appendChild(more);
     }
   } catch (_) {
-    box.innerHTML = '<div class="empty">Не удалось загрузить активность.</div>';
+    box.innerHTML = '<div class="empty">Failed to load activity.</div>';
   }
 }
 
@@ -395,7 +395,7 @@ async function loadPredictions() {
     if (r.status === 401) return logout();
     const d = await r.json();
     const ms = d.markets || [];
-    if (!ms.length) { box.innerHTML = '<div class="empty">Рынки недоступны.</div>'; return; }
+    if (!ms.length) { box.innerHTML = '<div class="empty">Markets unavailable.</div>'; return; }
     box.innerHTML = "";
     for (const m of ms) {
       const row = document.createElement("div");
@@ -408,7 +408,7 @@ async function loadPredictions() {
       box.appendChild(row);
     }
   } catch (_) {
-    box.innerHTML = '<div class="empty">Не удалось загрузить рынки.</div>';
+    box.innerHTML = '<div class="empty">Failed to load markets.</div>';
   }
 }
 
@@ -428,7 +428,7 @@ async function loadMarketplace() {
       let dot = "";
       if (s.status === "up") dot = '<span class="up" title="live">●</span> ';
       else if (s.status === "down") dot = '<span class="down" title="down">●</span> ';
-      else if (s.price > 0) dot = '<span class="mut" title="нужен USDC на Base">○</span> ';
+      else if (s.price > 0) dot = '<span class="mut" title="requires USDC on Base">○</span> ';
       cell.innerHTML = '<div style="font-weight:700;font-size:12px;">' + dot + escapeHtml(s.name) + '</div>' +
         '<div class="mut" style="font-size:10px;margin-top:2px;">' + escapeHtml(s.category) + '</div>' +
         '<div style="font-size:11px;margin-top:4px;">' + price + '</div>';
@@ -453,7 +453,7 @@ async function loadArcAgent() {
     if (d.reputation) {
       $("agRep").textContent = d.reputation.count > 0
         ? (d.reputation.avgScore != null ? d.reputation.avgScore + " (" + d.reputation.count + ")" : d.reputation.count)
-        : "нет отзывов";
+        : "no feedback";
     }
     $("agMeta").textContent = d.metadataURI ? "ipfs ✓" : "—";
     // Jobs list
@@ -468,7 +468,7 @@ async function loadArcAgent() {
 function renderArcJobs(jobs, explorer) {
   const box = $("agJobList");
   if (!jobs.length) {
-    box.innerHTML = '<div class="empty">Заданий ERC-8183 не найдено для этого агента.</div>';
+    box.innerHTML = '<div class="empty">No ERC-8183 jobs found for this agent.</div>';
     return;
   }
   const exp = explorer || "https://testnet.arcscan.app";
@@ -480,7 +480,7 @@ function renderArcJobs(jobs, explorer) {
       '<div><span class="addr">JOB #' + escapeHtml(String(j.jobId)) + '</span>' +
       '<span class="chip">' + escapeHtml(j.role || "") + '</span></div>' +
       '<div style="display:flex;align-items:center;gap:10px;">' +
-      (j.block != null ? '<span class="mut">блок ' + escapeHtml(String(j.block)) + '</span>' : '') +
+      (j.block != null ? '<span class="mut">block ' + escapeHtml(String(j.block)) + '</span>' : '') +
       '<a class="mono up" href="' + escapeAttr(exp + "/tx/" + (j.tx || "")) + '" target="_blank" rel="noopener" style="font-size:11px;">tx ↗</a></div>';
     box.appendChild(row);
   }
@@ -494,11 +494,11 @@ async function loadXItems() {
     const d = await r.json();
     const items = d.items || [];
     if (!items.length) {
-      box.innerHTML = '<div class="empty">Анализы из расширения появятся здесь. Привяжите кошелёк в расширении.</div>';
+      box.innerHTML = '<div class="empty">Analyses from the extension will appear here. Link your wallet in the extension.</div>';
       return;
     }
     box.innerHTML = "";
-    const kindLabel = { analyze: "🔍 Анализ", sentiment: "📊 Сентимент", improve: "✦ Черновик" };
+    const kindLabel = { analyze: "🔍 Analysis", sentiment: "📊 Sentiment", improve: "✦ Draft" };
     for (const it of items) {
       const row = document.createElement("div");
       row.className = "detail";
@@ -509,11 +509,11 @@ async function loadXItems() {
         (it.subject ? ' · ' + escapeHtml(it.subject) : '') +
         ' <span style="float:right;color:var(--muted);font-weight:400;">' + when + '</span></h4>' +
         '<div style="white-space:pre-wrap;line-height:1.5;font-size:12.5px;color:var(--dim);">' + escapeHtml(it.result) + '</div>' +
-        (it.job_hash ? '<div class="mut" style="margin-top:8px;font-size:10.5px;">⛓ ERC-8183 deliverable: <span class="mono" style="color:var(--accent);">' + escapeHtml(it.job_hash.slice(0, 18)) + '…</span> <span style="color:var(--muted);">готово к записи в сеть</span></div>' : '');
+        (it.job_hash ? '<div class="mut" style="margin-top:8px;font-size:10.5px;">⛓ ERC-8183 deliverable: <span class="mono" style="color:var(--accent);">' + escapeHtml(it.job_hash.slice(0, 18)) + '…</span> <span style="color:var(--muted);">ready to write on-chain</span></div>' : '');
       box.appendChild(row);
     }
   } catch (_) {
-    box.innerHTML = '<div class="empty">Не удалось загрузить анализы.</div>';
+    box.innerHTML = '<div class="empty">Failed to load analyses.</div>';
   }
 }
 
@@ -584,7 +584,7 @@ async function loadNews() {
     if (r.status === 401) return logout();
     const d = await r.json();
     const items = d.items || [];
-    if (!items.length) { box.innerHTML = '<div class="mut" style="padding:14px;">Новостей нет.</div>'; return; }
+    if (!items.length) { box.innerHTML = '<div class="mut" style="padding:14px;">No news.</div>'; return; }
     box.innerHTML = "";
     for (const it of items.slice(0, 25)) {
       const row = document.createElement("div");
@@ -596,7 +596,7 @@ async function loadNews() {
       box.appendChild(row);
     }
   } catch (_) {
-    box.innerHTML = '<div class="mut" style="padding:14px;">Не удалось загрузить новости.</div>';
+    box.innerHTML = '<div class="mut" style="padding:14px;">Failed to load news.</div>';
   }
 }
 
@@ -605,18 +605,18 @@ async function getDigest() {
   const box = $("digestBox");
   btn.disabled = true;
   const old = btn.textContent;
-  btn.textContent = "Генерация…";
+  btn.textContent = "Generating…";
   box.classList.remove("hidden");
-  box.textContent = "AI читает заголовки…";
+  box.textContent = "AI is reading the headlines…";
   try {
     const lang = (navigator.language || "ru").toLowerCase().startsWith("ru") ? "ru" : "en";
     const r = await fetch(api("/api/news/digest?lang=" + lang), { headers: authHeaders() });
     if (r.status === 401) return logout();
     const d = await r.json();
     if (d.digest) box.textContent = d.digest;
-    else box.textContent = d.error || "Сводка недоступна.";
+    else box.textContent = d.error || "Digest unavailable.";
   } catch (e) {
-    box.textContent = "Ошибка: " + e.message;
+    box.textContent = "Error: " + e.message;
   } finally {
     btn.disabled = false;
     btn.textContent = old;
@@ -627,11 +627,11 @@ function timeAgo(dateStr) {
   const t = Date.parse(dateStr);
   if (!t) return "";
   const mins = Math.floor((Date.now() - t) / 60000);
-  if (mins < 1) return "только что";
-  if (mins < 60) return mins + " мин";
+  if (mins < 1) return "just now";
+  if (mins < 60) return mins + "m";
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return hrs + " ч";
-  return Math.floor(hrs / 24) + " дн";
+  if (hrs < 24) return hrs + "h";
+  return Math.floor(hrs / 24) + "d";
 }
 function escapeAttr(s) { return String(s).replace(/"/g, "&quot;"); }
 
@@ -645,7 +645,7 @@ async function loadChains() {
     CHAINS = d.chains || [];
   } catch (_) { CHAINS = [{ key: "ethereum", label: "Ethereum", symbol: "ETH", rich: false }]; }
   const sel = $("chainSel");
-  sel.innerHTML = CHAINS.map(c => '<option value="' + c.key + '">' + c.label + (c.rich ? "" : " (баланс)") + '</option>').join("");
+  sel.innerHTML = CHAINS.map(c => '<option value="' + c.key + '">' + c.label + (c.rich ? "" : " (balance)") + '</option>').join("");
 }
 
 function chainOf(key) { return CHAINS.find(c => c.key === key) || { symbol: "ETH", label: key, rich: false }; }
@@ -662,7 +662,7 @@ async function loadWatchlist() {
   } catch (_) {}
   $("statWatch").textContent = items.length;
   if (!items.length) {
-    list.innerHTML = '<div class="empty">Пока пусто. Добавьте адрес кошелька, чтобы следить за его активностью.</div>';
+    list.innerHTML = '<div class="empty">Nothing here yet. Add a wallet address to track its activity.</div>';
     return;
   }
   for (const it of items) {
@@ -679,8 +679,8 @@ async function loadWatchlist() {
       (note ? '<div class="label">' + escapeHtml(note) + '</div>' : '') + '</div>' +
       '<div style="display:flex;align-items:center;gap:8px;">' +
       '<span class="bal">…</span>' +
-      '<button class="expand">детали ▾</button>' +
-      '<button class="rm">удалить</button></div>';
+      '<button class="expand">details ▾</button>' +
+      '<button class="rm">remove</button></div>';
     const bal = row.querySelector(".bal");
     row.querySelector(".rm").onclick = () => removeWallet(it.wallet);
 
@@ -689,7 +689,7 @@ async function loadWatchlist() {
     let loaded = false;
     row.querySelector(".expand").onclick = (e) => {
       const open = detail.classList.toggle("hidden");
-      e.target.textContent = open ? "детали ▾" : "детали ▴";
+      e.target.textContent = open ? "details ▾" : "details ▴";
       if (!open && !loaded) { loaded = true; loadDetail(it.wallet, chain, detail); }
     };
 
@@ -715,7 +715,7 @@ async function loadBalance(wallet, chain, el) {
 }
 
 async function loadDetail(wallet, chain, box) {
-  box.innerHTML = '<div class="mut">Загрузка…</div>';
+  box.innerHTML = '<div class="mut">Loading…</div>';
   const c = chainOf(chain);
   let html = "";
   // Tokens
@@ -723,18 +723,18 @@ async function loadDetail(wallet, chain, box) {
     const r = await fetch(api("/api/wallet/summary?wallet=" + wallet + "&chain=" + chain), { headers: authHeaders() });
     const d = await r.json();
     if (d.tokens && d.tokens.length) {
-      html += '<h4>Токены</h4>';
+      html += '<h4>Tokens</h4>';
       for (const t of d.tokens) {
         html += '<div class="tok"><div><span class="sym">' + escapeHtml(t.symbol) + '</span>' +
           (t.name ? '<span class="nm">' + escapeHtml(t.name) + '</span>' : '') + '</div>' +
           '<span class="amt">' + escapeHtml(t.balance) + '</span></div>';
       }
     } else if (c.rich) {
-      html += '<div class="mut">ERC-20 токенов не найдено.</div>';
+      html += '<div class="mut">No ERC-20 tokens found.</div>';
     } else {
-      html += '<div class="mut">Токены доступны на сетях с Alchemy. Для этой сети — только баланс.</div>';
+      html += '<div class="mut">Tokens are available on Alchemy-backed networks. For this network — balance only.</div>';
     }
-  } catch (_) { html += '<div class="mut">Не удалось загрузить токены.</div>'; }
+  } catch (_) { html += '<div class="mut">Failed to load tokens.</div>'; }
 
   // Activity (rich chains only)
   if (c.rich) {
@@ -742,7 +742,7 @@ async function loadDetail(wallet, chain, box) {
       const r = await fetch(api("/api/wallet/activity?wallet=" + wallet + "&chain=" + chain), { headers: authHeaders() });
       const d = await r.json();
       if (d.transfers && d.transfers.length) {
-        html += '<h4 style="margin-top:14px;">Последняя активность</h4>';
+        html += '<h4 style="margin-top:14px;">Recent activity</h4>';
         for (const tx of d.transfers) {
           const when = tx.ts ? new Date(tx.ts).toLocaleDateString() : "";
           const other = tx.dir === "in" ? tx.from : tx.to;
@@ -753,18 +753,18 @@ async function loadDetail(wallet, chain, box) {
             '<span class="val"><a href="' + (d.explorer || chainOf(chain).explorer || "#") + '/tx/' + tx.hash + '" target="_blank" rel="noopener">' + escapeHtml(val) + '</a></span></div>';
         }
       } else {
-        html += '<h4 style="margin-top:14px;">Последняя активность</h4><div class="mut">Транзакций не найдено.</div>';
+        html += '<h4 style="margin-top:14px;">Recent activity</h4><div class="mut">No transactions found.</div>';
       }
     } catch (_) {}
   }
-  box.innerHTML = html || '<div class="mut">Нет данных.</div>';
+  box.innerHTML = html || '<div class="mut">No data.</div>';
 }
 
 async function addWallet() {
   const wallet = $("wInput").value.trim().toLowerCase();
   const note = $("wLabel").value.trim();
   const chain = $("chainSel").value || "ethereum";
-  if (!/^0x[0-9a-f]{40}$/.test(wallet)) { setStatus("Неверный адрес", "err"); return; }
+  if (!/^0x[0-9a-f]{40}$/.test(wallet)) { setStatus("Invalid address", "err"); return; }
   // Pack chain into the label ("chain|note") — no schema change needed.
   const label = chain + "|" + note;
   $("addBtn").disabled = true;

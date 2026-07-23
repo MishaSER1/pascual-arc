@@ -24,26 +24,26 @@ import { fetchAgentState, readJobs, ARC } from "./arc.js";
 // directory, not invented metrics. Payment: EIP-3009 transferWithAuthorization
 // on Base mainnet (chain 8453).
 const X402_SERVICES = [
-  { name: "Binance", category: "Crypto Prices", price: 0, notes: "BTC/ETH цены" },
+  { name: "Binance", category: "Crypto Prices", price: 0, notes: "BTC/ETH prices" },
   { name: "BlockRun", category: "Crypto/AI", price: 0, notes: "Free tier" },
-  { name: "Polymarket", category: "Prediction", price: 0, notes: "рынки" },
+  { name: "Polymarket", category: "Prediction", price: 0, notes: "markets" },
   { name: "Messari", category: "Crypto", price: 0, notes: "Free tier" },
   { name: "AgentMail", category: "Email/Infra", price: 0, notes: "Free tier" },
-  { name: "Goldsky", category: "Blockchain", price: 0.000005, notes: "от $0.000005" },
-  { name: "QuickNode", category: "Blockchain", price: 0.0001, notes: "от $0.0001" },
-  { name: "Twitter/X", category: "Social", price: 0.0004, notes: "от $0.0004" },
-  { name: "Exa Search", category: "Web Search", price: 0.001, notes: "от $0.001" },
+  { name: "Goldsky", category: "Blockchain", price: 0.000005, notes: "from $0.000005" },
+  { name: "QuickNode", category: "Blockchain", price: 0.0001, notes: "from $0.0001" },
+  { name: "Twitter/X", category: "Social", price: 0.0004, notes: "from $0.0004" },
+  { name: "Exa Search", category: "Web Search", price: 0.001, notes: "from $0.001" },
   { name: "Alchemy", category: "Blockchain", price: 0.001, notes: "$0.001" },
   { name: "Google Scholar", category: "Research", price: 0.0024, notes: "$0.0024" },
   { name: "YouTube", category: "Social", price: 0.0024, notes: "$0.0024" },
   { name: "CoinGecko", category: "Crypto", price: 0.008, notes: "via AIsa" },
   { name: "Tavily", category: "Web Search", price: 0.0096, notes: "$0.0096" },
-  { name: "Parallel", category: "Web Search", price: 0.01, notes: "от $0.01" },
+  { name: "Parallel", category: "Web Search", price: 0.01, notes: "from $0.01" },
   { name: "Perplexity", category: "Web Search", price: 0.012, notes: "$0.012" },
   { name: "Reddit", category: "Social", price: 0.02, notes: "$0.02" },
-  { name: "Google Maps", category: "Location", price: 0.02, notes: "от $0.02" },
-  { name: "Serper", category: "Web Search", price: 0.04, notes: "от $0.04" },
-  { name: "EMC2 AI", category: "AI Compute", price: 0.25, notes: "от $0.25" },
+  { name: "Google Maps", category: "Location", price: 0.02, notes: "from $0.02" },
+  { name: "Serper", category: "Web Search", price: 0.04, notes: "from $0.04" },
+  { name: "EMC2 AI", category: "AI Compute", price: 0.25, notes: "from $0.25" },
 ];
 
 // keccak256 hex of a UTF-8 string — the ERC-8183 "deliverable hash" of an
@@ -132,8 +132,8 @@ button:disabled{opacity:.5;cursor:default}
 .ok{color:#22e07a}.err{color:#ff4d5e}
 </style></head><body><div class="card">
 <h1>✦ Link extension</h1>
-<div class="sub">Свяжите расширение Pascual Reply Pro с этим кошельком. Ваши анализы X будут появляться в терминале. Подпись бесплатна, транзакции нет.</div>
-<button id="b">Подключить кошелёк</button><div id="s"></div>
+<div class="sub">Link the Pascual Reply Pro extension to this wallet. Your X analyses will appear in the terminal. The signature is free — no transaction.</div>
+<button id="b">Connect wallet</button><div id="s"></div>
 </div><script>
 const S=document.getElementById('s'), set=(m,c)=>{S.textContent=m;S.className=c||''};
 function cid(){const m=(location.hash||'').match(/cid=([A-Za-z0-9_-]{8,128})/);return m?m[1]:null;}
@@ -141,20 +141,20 @@ function hexMsg(s){return '0x'+Array.from(new TextEncoder().encode(s)).map(b=>b.
 document.getElementById('b').onclick=async()=>{
   const b=document.getElementById('b');
   try{
-    const c=cid(); if(!c){set('Нет device id. Откройте эту страницу из расширения.','err');return;}
-    if(!window.ethereum){set('Кошелёк не найден. Установите MetaMask.','err');return;}
-    b.disabled=true; set('Подключение…');
+    const c=cid(); if(!c){set('No device id. Open this page from the extension.','err');return;}
+    if(!window.ethereum){set('No wallet found. Install MetaMask.','err');return;}
+    b.disabled=true; set('Connecting…');
     const [from]=await ethereum.request({method:'eth_requestAccounts'});
     const addr=from.toLowerCase();
     const msg='Pascual Hub — link extension to '+addr+String.fromCharCode(10)+'cid: '+c;
-    set('Подпишите сообщение в кошельке…');
+    set('Sign the message in your wallet…');
     const signature=await ethereum.request({method:'personal_sign',params:[hexMsg(msg),from]});
-    set('Проверка…');
+    set('Verifying…');
     const r=await fetch('/api/ext/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid:c,address:addr,signature})});
     const d=await r.json();
-    if(r.ok&&d.ok){set('✓ Готово! Расширение связано с '+addr.slice(0,6)+'…'+addr.slice(-4)+'. Можно закрыть вкладку.','ok');}
-    else set(d.error||'Ошибка привязки','err');
-  }catch(e){set(e&&e.message?e.message:'Отменено','err');b.disabled=false;}
+    if(r.ok&&d.ok){set('✓ Done! Extension linked to '+addr.slice(0,6)+'…'+addr.slice(-4)+'. You can close this tab.','ok');}
+    else set(d.error||'Link failed','err');
+  }catch(e){set(e&&e.message?e.message:'Cancelled','err');b.disabled=false;}
 };
 </script></body></html>`;
 }
@@ -490,16 +490,14 @@ async function freeModels(env) {
 // models until one answers (the free set changes constantly). Graceful if unset.
 async function aiDigest(env, items, lang) {
   if (!env.OPENROUTER_KEY) {
-    return { digest: null, error: "AI-сводка не настроена (нет OPENROUTER_KEY). / AI digest not configured." };
+    return { digest: null, error: "AI digest not configured (OPENROUTER_KEY missing)." };
   }
   const headlines = items.slice(0, 25).map((it, i) => `${i + 1}. [${it.source}] ${it.title}`).join("\n");
-  const sys = lang === "ru"
-    ? "Ты крипто-аналитик. По списку заголовков сделай короткую сводку дня простым текстом (без markdown): 3-5 главных тем одной-двумя фразами каждая, начинай каждую с '• '. В конце строка 'Настроение рынка:' одним словом. Максимум 700 символов. Отвечай по-русски."
-    : "You are a crypto analyst. From these headlines write a short daily digest in plain text (no markdown): 3-5 key themes, one or two sentences each, each starting with '• '. End with a line 'Market mood:' in one word. Max 700 chars.";
+  const sys = "You are a crypto analyst. From these headlines write a short daily digest in plain text (no markdown): 3-5 key themes, one or two sentences each, each starting with '• '. End with a line 'Market mood:' in one word. Max 700 chars.";
 
   let models;
-  try { models = await freeModels(env); } catch (e) { return { digest: null, error: "Не удалось получить список моделей: " + e.message }; }
-  if (!models.length) return { digest: null, error: "Нет доступных бесплатных моделей. Попробуйте позже." };
+  try { models = await freeModels(env); } catch (e) { return { digest: null, error: "Could not load model list: " + e.message }; }
+  if (!models.length) return { digest: null, error: "No free models available right now. Try again later." };
 
   let lastErr = "unknown";
   for (const model of models.slice(0, 5)) {
@@ -521,7 +519,7 @@ async function aiDigest(env, items, lang) {
       lastErr = "empty";
     } catch (e) { lastErr = e.message; }
   }
-  return { digest: null, error: "Все бесплатные модели не ответили. Последняя ошибка: " + lastErr };
+  return { digest: null, error: "All free models failed. Last error: " + lastErr };
 }
 
 // Recent transfers (in + out) for a wallet on an Alchemy chain.
@@ -746,7 +744,7 @@ export default {
             chainId: 8453,
             free: X402_SERVICES.filter(s => s.price === 0).length,
             paid: X402_SERVICES.filter(s => s.price > 0).length,
-            note: "Бесплатные вызываются напрямую. Платные требуют реальный USDC на Base.",
+            note: "Free services are called directly. Paid ones require real USDC on Base.",
           });
         }
         // ---- Prediction markets (real Polymarket data) ----
@@ -815,11 +813,12 @@ export default {
         }
         // ---- Signal Feed: AI digest of current headlines ----
         if (path === "/api/news/digest" && request.method === "GET") {
-          const lang = (url.searchParams.get("lang") || "ru").startsWith("ru") ? "ru" : "en";
+          // Default to English (grant/international audience); Russian only if asked.
+          const lang = (url.searchParams.get("lang") || "en").startsWith("ru") ? "ru" : "en";
           // Rate-limit the AI call per user per hour (cheap abuse guard).
           const gate = `digest:${me}:${new Date().toISOString().slice(0, 13)}`;
           const n = env.SESS ? parseInt((await env.SESS.get(gate)) || "0", 10) : 0;
-          if (n >= 10) return send({ digest: null, error: "Лимит сводок на этот час исчерпан. / Hourly digest limit reached." }, 429);
+          if (n >= 10) return send({ digest: null, error: "Hourly digest limit reached." }, 429);
           const news = await fetchNews(env, ctx);
           const out = await aiDigest(env, news.items, lang);
           if (env.SESS && out.digest) await env.SESS.put(gate, String(n + 1), { expirationTtl: 3600 });

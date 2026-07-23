@@ -1,63 +1,63 @@
-# Pascual Hub — кошелёк-центричный командный центр
+# Pascual Hub — wallet-centric command center
 
-Фаза 1: сайт-кабинет с входом по кошельку + Wallet Radar (слежение за кошельками).
-Архитектура: см. артефакт-план. Всё на бесплатных тирах Cloudflare + публичных on-chain API.
+Phase 1: a dashboard site with wallet login + Wallet Radar (tracking wallets).
+Architecture: see the artifact plan. Everything on Cloudflare free tiers + public on-chain APIs.
 
-## Структура
+## Structure
 
 ```
 hub/
-├── public/index.html   ← фронтенд (Cloudflare Pages): вход кошельком, дашборд, Wallet Radar
-├── worker.js           ← бэкенд API (Cloudflare Worker): auth, watchlist, on-chain summary
-├── crypto.js           ← keccak-256 + secp256k1 ecrecover (общий с расширением, проверен)
+├── public/index.html   ← frontend (Cloudflare Pages): wallet login, dashboard, Wallet Radar
+├── worker.js           ← backend API (Cloudflare Worker): auth, watchlist, on-chain summary
+├── crypto.js           ← keccak-256 + secp256k1 ecrecover (shared with the extension, verified)
 ├── schema.sql          ← D1: profiles, watchlist
-└── wrangler.toml       ← конфиг worker'а (заполнить id KV и D1)
+└── wrangler.toml       ← worker config (fill in the KV and D1 ids)
 ```
 
-## Как работает вход
+## How login works
 
-1. `GET /api/auth/nonce?address=0x…` → сервер выдаёт одноразовый nonce (60с, в KV) и текст сообщения.
-2. Кошелёк подписывает сообщение (`personal_sign`, бесплатно, без транзакции).
-3. `POST /api/auth/verify {address, signature}` → сервер восстанавливает адрес из подписи (локальный ecrecover, без RPC), сверяет с nonce, удаляет nonce (одноразовый), выдаёт сессионный токен (HMAC, 7 дней).
-4. Дальнейшие запросы шлют `Authorization: Bearer <token>`.
+1. `GET /api/auth/nonce?address=0x…` → the server issues a one-time nonce (60s, in KV) and the message text.
+2. The wallet signs the message (`personal_sign`, free, no transaction).
+3. `POST /api/auth/verify {address, signature}` → the server recovers the address from the signature (local ecrecover, no RPC), checks it against the nonce, deletes the nonce (one-time), issues a session token (HMAC, 7 days).
+4. Subsequent requests send `Authorization: Bearer <token>`.
 
-Приватный ключ никогда не покидает кошелёк. Nonce одноразовый — подпись нельзя переиспользовать.
+The private key never leaves the wallet. The nonce is one-time — the signature cannot be reused.
 
-## Деплой (нужен ваш аккаунт Cloudflare)
+## Deployment (your Cloudflare account required)
 
 ```powershell
 cd D:\Soft\Arc\hub
 
-# 1. Создать хранилища
-npx wrangler kv namespace create SESS          # → вставить id в wrangler.toml (SESS)
-npx wrangler d1 create pascual-hub             # → вставить database_id в wrangler.toml (DB)
+# 1. Create the stores
+npx wrangler kv namespace create SESS          # → paste the id into wrangler.toml (SESS)
+npx wrangler d1 create pascual-hub             # → paste the database_id into wrangler.toml (DB)
 npx wrangler d1 execute pascual-hub --file=schema.sql --remote
 
-# 2. Секрет сессий
-npx wrangler secret put SESSION_SECRET         # ввести длинную случайную строку
+# 2. Session secret
+npx wrangler secret put SESSION_SECRET         # enter a long random string
 
-# 3. Задеплоить API
-npx wrangler deploy                            # запомнить URL вида https://pascual-hub-api.<...>.workers.dev
+# 3. Deploy the API
+npx wrangler deploy                            # note the URL like https://pascual-hub-api.<...>.workers.dev
 
-# 4. Задеплоить фронтенд на Pages
+# 4. Deploy the frontend to Pages
 npx wrangler pages deploy public --project-name pascual-hub
 ```
 
-После деплоя: открыть сайт Pages, в консоли браузера один раз выполнить
+After deployment: open the Pages site, in the browser console run once
 `localStorage.setItem("pascual_hub_api", "https://pascual-hub-api.<...>.workers.dev")`
-(или потом впишем поле настроек), затем «Подключить кошелёк».
+(or we'll add a settings field later), then "Connect wallet".
 
-Также пропишите в `wrangler.toml` → `ALLOWED_ORIGIN` = URL вашего Pages-сайта и передеплойте worker (CORS).
+Also set in `wrangler.toml` → `ALLOWED_ORIGIN` = the URL of your Pages site and redeploy the worker (CORS).
 
-## Что дальше (следующие фазы)
+## What's next (upcoming phases)
 
-- Фаза 2+: обогатить Wallet Radar (токены, NFT, история tx, карты активности) — заменить `fetchWalletSummary` на Alchemy/Covalent/DeBank free-tier.
-- Фаза 3: X Cockpit — расширение Pascual Reply Pro шлёт в кабинет результаты Analyze/Sentiment.
-- Фаза 4: Signal Feed (RSS + крипто-API + AI-сводки).
-- Фаза 5: кредиты/x402 (переиспользовать из расширения), ERC-8183 jobs, заявка на грант.
+- Phase 2+: enrich Wallet Radar (tokens, NFTs, tx history, activity maps) — replace `fetchWalletSummary` with Alchemy/Covalent/DeBank free tier.
+- Phase 3: X Cockpit — the Pascual Reply Pro extension sends Analyze/Sentiment results to the dashboard.
+- Phase 4: Signal Feed (RSS + crypto APIs + AI summaries).
+- Phase 5: credits/x402 (reuse from the extension), ERC-8183 jobs, grant application.
 
-## Границы (важно)
+## Boundaries (important)
 
-- On-chain данные — публичные, легальные, бесплатные.
-- X-данные — ТОЛЬКО через расширение (браузер пользователя). Никакого серверного скрапинга X.
-- Чужие твиты на сервере не храним — только вычисленный анализ.
+- On-chain data — public, legal, free.
+- X data — ONLY through the extension (the user's browser). No server-side scraping of X.
+- We don't store other people's tweets on the server — only the computed analysis.
