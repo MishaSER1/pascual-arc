@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pascual Hub</title>
+<style>
+  :root {
+    --bg:#f6f4fb; --panel:#fff; --panel-2:#efeaf8; --ink:#211a33; --muted:#6b6280;
+    --line:#e2dbef; --accent:#7c4fe0; --accent-2:#17a673; --danger:#d6455f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f0c17; --panel:#181222; --panel-2:#20182f; --ink:#f1eff7; --muted:#9990ac;
+      --line:#2c2340; --accent:#a583f0; --accent-2:#4fd7a0; --danger:#f0637f; }
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; }
+  body { background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height:1.5; }
+  a { color:var(--accent); }
+  .hidden { display:none !important; }
+
+  /* top bar */
+  header { display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px 22px; border-bottom:1px solid var(--line); background:var(--panel); position:sticky; top:0; z-index:10; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.01em; }
+  .brand .mark { width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#e94560);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800; }
+  .who { font-family:ui-monospace,Consolas,monospace; font-size:13px; color:var(--muted); }
+  button { font:inherit; cursor:pointer; border:none; border-radius:10px; padding:10px 16px; font-weight:700; }
+  .btn-primary { background:linear-gradient(135deg,#8b5cf6,#e94560); color:#fff; }
+  .btn-ghost { background:var(--panel-2); color:var(--ink); }
+  button:disabled { opacity:.55; cursor:default; }
+
+  main { max-width:1000px; margin:0 auto; padding:28px 22px 80px; }
+
+  /* sign-in card */
+  .signin { max-width:440px; margin:8vh auto 0; background:var(--panel); border:1px solid var(--line);
+    border-radius:18px; padding:34px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.12); }
+  .signin h1 { font-size:26px; margin:0 0 8px; letter-spacing:-.02em; }
+  .signin p { color:var(--muted); margin:0 0 24px; font-size:15px; }
+  .signin .btn-primary { width:100%; padding:14px; font-size:15px; }
+  .note { margin-top:16px; font-size:12.5px; color:var(--muted); line-height:1.5; }
+  #status { min-height:20px; margin-top:14px; font-size:13px; word-break:break-word; }
+  #status.err { color:var(--danger); } #status.ok { color:var(--accent-2); }
+
+  /* dashboard */
+  h2 { font-size:18px; margin:26px 0 12px; letter-spacing:-.01em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
+  .card .k { font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  .card .v { font-size:22px; font-weight:800; margin-top:4px; font-variant-numeric:tabular-nums; }
+
+  .addrow { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .addrow input { flex:1; min-width:200px; font:inherit; padding:11px 13px; border-radius:10px;
+    border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+  .addrow input:focus { outline:2px solid var(--accent); border-color:transparent; }
+
+  .wlist { display:flex; flex-direction:column; gap:10px; }
+  .wrow { display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 15px; }
+  .wrow .addr { font-family:ui-monospace,Consolas,monospace; font-size:13px; }
+  .wrow .label { color:var(--muted); font-size:13px; }
+  .wrow .bal { font-variant-numeric:tabular-nums; font-weight:700; margin-right:6px; }
+  .wrow .rm { background:transparent; color:var(--danger); padding:6px 10px; font-size:13px; }
+  .wrow .chip { font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
+    background:var(--panel-2); color:var(--muted); margin-left:6px; }
+  .wrow .expand { background:transparent; color:var(--accent); padding:6px 8px; font-size:13px; }
+  .detail { margin-top:-4px; margin-bottom:0; background:var(--panel); border:1px solid var(--line);
+    border-top:none; border-radius:0 0 12px 12px; padding:14px 16px; }
+  .detail h4 { margin:0 0 8px; font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  .tok { display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:13px; border-bottom:1px solid var(--line); }
+  .tok:last-child { border-bottom:none; }
+  .tok .sym { font-weight:700; }
+  .tok .nm { color:var(--muted); font-size:12px; margin-left:6px; }
+  .tok .amt { font-variant-numeric:tabular-nums; }
+  .tx { display:flex; align-items:center; gap:8px; padding:6px 0; font-size:12.5px; border-bottom:1px solid var(--line); }
+  .tx:last-child { border-bottom:none; }
+  .tx .dir { font-weight:800; width:20px; text-align:center; }
+  .tx .dir.in { color:var(--accent-2); } .tx .dir.out { color:var(--danger); }
+  .tx .a { font-family:ui-monospace,Consolas,monospace; color:var(--muted); }
+  .tx .val { margin-left:auto; font-variant-numeric:tabular-nums; font-weight:600; }
+  .tx a { text-decoration:none; }
+  .mut { color:var(--muted); font-size:13px; }
+  .digest { background:var(--panel); border:1px solid var(--accent); border-radius:12px;
+    padding:14px 16px; margin-bottom:14px; white-space:pre-wrap; line-height:1.5; font-size:14px; }
+  .news { display:flex; flex-direction:column; gap:2px; }
+  .nrow { display:flex; align-items:baseline; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); }
+  .nrow:last-child { border-bottom:none; }
+  .nrow .src { flex:0 0 auto; font-size:11px; font-weight:700; color:var(--accent);
+    background:var(--panel-2); padding:2px 8px; border-radius:999px; }
+  .nrow a { color:var(--ink); text-decoration:none; font-size:14px; flex:1; }
+  .nrow a:hover { color:var(--accent); }
+  .nrow .when { flex:0 0 auto; color:var(--muted); font-size:12px; }
+  .empty { color:var(--muted); font-size:14px; padding:18px; text-align:center;
+    border:1px dashed var(--line); border-radius:12px; }
+  .soon { display:inline-block; font-size:11px; font-weight:700; color:var(--muted);
+    background:var(--panel-2); padding:2px 8px; border-radius:999px; margin-left:8px; }
+  .foot { margin-top:40px; color:var(--muted); font-size:12.5px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="mark">✦</span> Pascual Hub</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span id="who" class="who hidden"></span>
+    <button id="logoutBtn" class="btn-ghost hidden">Выйти</button>
+  </div>
+</header>
+
+<!-- SIGN IN -->
+<main id="signinView">
+  <div class="signin">
+    <h1>Вход по кошельку</h1>
+    <p>Никаких паролей. Подпишите сообщение своим кошельком — и вы внутри.</p>
+    <button id="connectBtn" class="btn-primary">Подключить кошелёк</button>
+    <div id="status"></div>
+    <div class="note">Подпись бесплатна и не отправляет транзакцию. Мы восстанавливаем ваш адрес из подписи — приватный ключ никогда не покидает кошелёк.</div>
+  </div>
+</main>
+
+<!-- DASHBOARD -->
+<main id="dashView" class="hidden">
+  <div class="grid">
+    <div class="card"><div class="k">Кошельков на слежении</div><div class="v" id="statWatch">0</div></div>
+    <div class="card"><div class="k">Сеть данных</div><div class="v" style="font-size:16px;">Ethereum</div></div>
+    <div class="card"><div class="k">Статус</div><div class="v" style="font-size:16px;color:var(--accent-2);">Онлайн</div></div>
+  </div>
+
+  <h2>Wallet Radar</h2>
+  <div class="addrow">
+    <input id="wInput" placeholder="0x… адрес кошелька" spellcheck="false" />
+    <input id="wLabel" placeholder="метка (необязательно)" style="flex:0 0 180px;min-width:120px;" />
+    <select id="chainSel" style="flex:0 0 auto;font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);"></select>
+    <button id="addBtn" class="btn-primary">Добавить</button>
+  </div>
+  <div id="wlist" class="wlist"></div>
+
+  <h2>Signal Feed</h2>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+    <button id="digestBtn" class="btn-primary">✦ AI-сводка дня</button>
+    <button id="refreshNews" class="btn-ghost">Обновить</button>
+  </div>
+  <div id="digestBox" class="digest hidden"></div>
+  <div id="news" class="news"><div class="mut" style="padding:14px;">Загрузка новостей…</div></div>
+
+  <h2>X Cockpit <span class="soon">скоро</span></h2>
+  <div class="empty">Подключение расширения Pascual Reply Pro — на фазе 3.</div>
+
+  <div class="foot">Данные on-chain — публичные, бесплатные. X-данные будут поступать только из вашего браузера через расширение. Никакого серверного скрапинга.</div>
+</main>
+
+<script>
+// Deployed hub API worker. A localStorage override wins (handy for testing a
+// different backend); otherwise the baked-in production URL is used.
+const API = (localStorage.getItem("pascual_hub_api") || "https://pascual-hub-api.pascuallabs.workers.dev").replace(/\/$/, "");
+const api = (p) => API + p;
+
+const $ = (id) => document.getElementById(id);
+const setStatus = (m, cls) => { const s = $("status"); s.textContent = m || ""; s.className = cls || ""; };
+
+let token = localStorage.getItem("pascual_hub_token") || "";
+let address = localStorage.getItem("pascual_hub_addr") || "";
+
+function authHeaders() { return token ? { "Authorization": "Bearer " + token } : {}; }
+
+async function connect() {
+  try {
+    if (!window.ethereum) { setStatus("Кошелёк не найден. Установите MetaMask.", "err"); return; }
+    $("connectBtn").disabled = true;
+    setStatus("Подключение…");
+    const [addr] = await ethereum.request({ method: "eth_requestAccounts" });
+    const a = addr.toLowerCase();
+    setStatus("Запрос nonce…");
+    const nr = await fetch(api("/api/auth/nonce?address=" + a));
+    const nd = await nr.json();
+    if (!nr.ok) throw new Error(nd.error || "nonce error");
+    setStatus("Подпишите сообщение в кошельке…");
+    const msgHex = "0x" + Array.from(new TextEncoder().encode(nd.message)).map(b => b.toString(16).padStart(2, "0")).join("");
+    const signature = await ethereum.request({ method: "personal_sign", params: [msgHex, addr] });
+    setStatus("Проверка подписи…");
+    const vr = await fetch(api("/api/auth/verify"), {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address: a, signature })
+    });
+    const vd = await vr.json();
+    if (!vr.ok) throw new Error(vd.error || "verify error");
+    token = vd.token; address = vd.address;
+    localStorage.setItem("pascual_hub_token", token);
+    localStorage.setItem("pascual_hub_addr", address);
+    setStatus("");
+    showDashboard();
+  } catch (e) {
+    setStatus(e.message || "Ошибка входа", "err");
+  } finally {
+    $("connectBtn").disabled = false;
+  }
+}
+
+function logout() {
+  token = ""; address = "";
+  localStorage.removeItem("pascual_hub_token");
+  localStorage.removeItem("pascual_hub_addr");
+  $("dashView").classList.add("hidden");
+  $("signinView").classList.remove("hidden");
+  $("who").classList.add("hidden");
+  $("logoutBtn").classList.add("hidden");
+}
+
+function short(a) { return a.slice(0, 6) + "…" + a.slice(-4); }
+
+async function showDashboard() {
+  $("signinView").classList.add("hidden");
+  $("dashView").classList.remove("hidden");
+  $("who").textContent = short(address);
+  $("who").classList.remove("hidden");
+  $("logoutBtn").classList.remove("hidden");
+  await loadChains();
+  await loadWatchlist();
+  loadNews();
+}
+
+async function loadNews() {
+  const box = $("news");
+  try {
+    const r = await fetch(api("/api/news"), { headers: authHeaders() });
+    if (r.status === 401) return logout();
+    const d = await r.json();
+    const items = d.items || [];
+    if (!items.length) { box.innerHTML = '<div class="mut" style="padding:14px;">Новостей нет.</div>'; return; }
+    box.innerHTML = "";
+    for (const it of items.slice(0, 25)) {
+      const row = document.createElement("div");
+      row.className = "nrow";
+      const when = it.date ? timeAgo(it.date) : "";
+      row.innerHTML = '<span class="src">' + escapeHtml(it.source) + '</span>' +
+        '<a href="' + escapeAttr(it.link) + '" target="_blank" rel="noopener">' + escapeHtml(it.title) + '</a>' +
+        '<span class="when">' + when + '</span>';
+      box.appendChild(row);
+    }
+  } catch (_) {
+    box.innerHTML = '<div class="mut" style="padding:14px;">Не удалось загрузить новости.</div>';
+  }
+}
+
+async function getDigest() {
+  const btn = $("digestBtn");
+  const box = $("digestBox");
+  btn.disabled = true;
+  const old = btn.textContent;
+  btn.textContent = "Генерация…";
+  box.classList.remove("hidden");
+  box.textContent = "AI читает заголовки…";
+  try {
+    const lang = (navigator.language || "ru").toLowerCase().startsWith("ru") ? "ru" : "en";
+    const r = await fetch(api("/api/news/digest?lang=" + lang), { headers: authHeaders() });
+    if (r.status === 401) return logout();
+    const d = await r.json();
+    if (d.digest) box.textContent = d.digest;
+    else box.textContent = d.error || "Сводка недоступна.";
+  } catch (e) {
+    box.textContent = "Ошибка: " + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = old;
+  }
+}
+
+function timeAgo(dateStr) {
+  const t = Date.parse(dateStr);
+  if (!t) return "";
+  const mins = Math.floor((Date.now() - t) / 60000);
+  if (mins < 1) return "только что";
+  if (mins < 60) return mins + " мин";
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + " ч";
+  return Math.floor(hrs / 24) + " дн";
+}
+function escapeAttr(s) { return String(s).replace(/"/g, "&quot;"); }
+
+let CHAINS = [];
+let defaultChain = "ethereum";
+
+async function loadChains() {
+  try {
+    const r = await fetch(api("/api/chains"), { headers: authHeaders() });
+    const d = await r.json();
+    CHAINS = d.chains || [];
+  } catch (_) { CHAINS = [{ key: "ethereum", label: "Ethereum", symbol: "ETH", rich: false }]; }
+  const sel = $("chainSel");
+  sel.innerHTML = CHAINS.map(c => '<option value="' + c.key + '">' + c.label + (c.rich ? "" : " (баланс)") + '</option>').join("");
+}
+
+function chainOf(key) { return CHAINS.find(c => c.key === key) || { symbol: "ETH", label: key, rich: false }; }
+
+async function loadWatchlist() {
+  const list = $("wlist");
+  list.innerHTML = "";
+  let items = [];
+  try {
+    const r = await fetch(api("/api/watchlist"), { headers: authHeaders() });
+    if (r.status === 401) return logout();
+    const d = await r.json();
+    items = d.items || [];
+  } catch (_) {}
+  $("statWatch").textContent = items.length;
+  if (!items.length) {
+    list.innerHTML = '<div class="empty">Пока пусто. Добавьте адрес кошелька, чтобы следить за его активностью.</div>';
+    return;
+  }
+  for (const it of items) {
+    // Chain stored in the label as "chain|note" (backend keeps a single label
+    // column; we pack the chain in front so no schema change is needed).
+    const [chain, note] = splitLabel(it.label);
+    const c = chainOf(chain);
+    const wrap = document.createElement("div");
+
+    const row = document.createElement("div");
+    row.className = "wrow";
+    row.innerHTML =
+      '<div><div class="addr">' + short(it.wallet) + '<span class="chip">' + c.label + '</span></div>' +
+      (note ? '<div class="label">' + escapeHtml(note) + '</div>' : '') + '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+      '<span class="bal">…</span>' +
+      '<button class="expand">детали ▾</button>' +
+      '<button class="rm">удалить</button></div>';
+    const bal = row.querySelector(".bal");
+    row.querySelector(".rm").onclick = () => removeWallet(it.wallet);
+
+    const detail = document.createElement("div");
+    detail.className = "detail hidden";
+    let loaded = false;
+    row.querySelector(".expand").onclick = (e) => {
+      const open = detail.classList.toggle("hidden");
+      e.target.textContent = open ? "детали ▾" : "детали ▴";
+      if (!open && !loaded) { loaded = true; loadDetail(it.wallet, chain, detail); }
+    };
+
+    wrap.append(row, detail);
+    list.appendChild(wrap);
+    loadBalance(it.wallet, chain, bal);
+  }
+}
+
+function splitLabel(label) {
+  const s = String(label || "");
+  const i = s.indexOf("|");
+  if (i >= 0) return [s.slice(0, i) || "ethereum", s.slice(i + 1)];
+  return ["ethereum", s]; // legacy rows without a chain prefix
+}
+
+async function loadBalance(wallet, chain, el) {
+  try {
+    const r = await fetch(api("/api/wallet/summary?wallet=" + wallet + "&chain=" + chain), { headers: authHeaders() });
+    const d = await r.json();
+    el.textContent = d.native != null ? (Number(d.native).toFixed(4) + " " + (d.symbol || "")) : "—";
+  } catch (_) { el.textContent = "—"; }
+}
+
+async function loadDetail(wallet, chain, box) {
+  box.innerHTML = '<div class="mut">Загрузка…</div>';
+  const c = chainOf(chain);
+  let html = "";
+  // Tokens
+  try {
+    const r = await fetch(api("/api/wallet/summary?wallet=" + wallet + "&chain=" + chain), { headers: authHeaders() });
+    const d = await r.json();
+    if (d.tokens && d.tokens.length) {
+      html += '<h4>Токены</h4>';
+      for (const t of d.tokens) {
+        html += '<div class="tok"><div><span class="sym">' + escapeHtml(t.symbol) + '</span>' +
+          (t.name ? '<span class="nm">' + escapeHtml(t.name) + '</span>' : '') + '</div>' +
+          '<span class="amt">' + escapeHtml(t.balance) + '</span></div>';
+      }
+    } else if (c.rich) {
+      html += '<div class="mut">ERC-20 токенов не найдено.</div>';
+    } else {
+      html += '<div class="mut">Токены доступны на сетях с Alchemy. Для этой сети — только баланс.</div>';
+    }
+  } catch (_) { html += '<div class="mut">Не удалось загрузить токены.</div>'; }
+
+  // Activity (rich chains only)
+  if (c.rich) {
+    try {
+      const r = await fetch(api("/api/wallet/activity?wallet=" + wallet + "&chain=" + chain), { headers: authHeaders() });
+      const d = await r.json();
+      if (d.transfers && d.transfers.length) {
+        html += '<h4 style="margin-top:14px;">Последняя активность</h4>';
+        for (const tx of d.transfers) {
+          const when = tx.ts ? new Date(tx.ts).toLocaleDateString() : "";
+          const other = tx.dir === "in" ? tx.from : tx.to;
+          const val = tx.value != null ? (Number(tx.value).toPrecision(4) + " " + (tx.asset || "")) : (tx.asset || "");
+          html += '<div class="tx"><span class="dir ' + tx.dir + '">' + (tx.dir === "in" ? "↓" : "↑") + '</span>' +
+            '<span class="a">' + (other ? short(other) : "—") + '</span>' +
+            '<span class="mut">' + when + '</span>' +
+            '<span class="val"><a href="' + (d.explorer || chainOf(chain).explorer || "#") + '/tx/' + tx.hash + '" target="_blank" rel="noopener">' + escapeHtml(val) + '</a></span></div>';
+        }
+      } else {
+        html += '<h4 style="margin-top:14px;">Последняя активность</h4><div class="mut">Транзакций не найдено.</div>';
+      }
+    } catch (_) {}
+  }
+  box.innerHTML = html || '<div class="mut">Нет данных.</div>';
+}
+
+async function addWallet() {
+  const wallet = $("wInput").value.trim().toLowerCase();
+  const note = $("wLabel").value.trim();
+  const chain = $("chainSel").value || "ethereum";
+  if (!/^0x[0-9a-f]{40}$/.test(wallet)) { setStatus("Неверный адрес", "err"); return; }
+  // Pack chain into the label ("chain|note") — no schema change needed.
+  const label = chain + "|" + note;
+  $("addBtn").disabled = true;
+  try {
+    const r = await fetch(api("/api/watchlist"), {
+      method: "POST", headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ wallet, label })
+    });
+    if (r.status === 401) return logout();
+    $("wInput").value = ""; $("wLabel").value = "";
+    await loadWatchlist();
+  } catch (e) { setStatus(e.message, "err"); }
+  finally { $("addBtn").disabled = false; }
+}
+
+async function removeWallet(wallet) {
+  try {
+    await fetch(api("/api/watchlist?wallet=" + wallet), { method: "DELETE", headers: authHeaders() });
+    await loadWatchlist();
+  } catch (_) {}
+}
+
+function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+$("connectBtn").onclick = connect;
+$("logoutBtn").onclick = logout;
+$("addBtn").onclick = addWallet;
+$("digestBtn").onclick = getDigest;
+$("refreshNews").onclick = loadNews;
+$("wInput").addEventListener("keydown", e => { if (e.key === "Enter") addWallet(); });
+
+// Auto-enter if we already have a session token.
+if (token && address) showDashboard();
+</script>
+</body>
+</html>

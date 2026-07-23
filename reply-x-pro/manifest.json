@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Pascual Reply Pro for X",
+  "version": "1.5.0",
+  "description": "AI assistant for Twitter (X): quick replies, draft improver, tweet generator, post & thread analysis, reply sentiment, sync to Pascual Terminal. By Pascual Labs.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.browser-tools.app/*",
+    "https://pascual-hub-api.pascuallabs.workers.dev/*",
+    "https://api.openai.com/*",
+    "https://api.deepseek.com/*",
+    "https://api.groq.com/*",
+    "https://api.anthropic.com/*",
+    "https://openrouter.ai/*",
+    "https://twitter.com/*",
+    "https://x.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://twitter.com/*",
+        "https://x.com/*"
+      ],
+      "js": [
+        "content_script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Pascual Reply for X Settings",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "homepage_url": "https://browser-tools.app/products/gpt-twitter-reply.html"
+}

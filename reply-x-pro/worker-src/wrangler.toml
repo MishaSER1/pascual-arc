@@ -1,0 +1,40 @@
+name = "api-relay"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+# Hide the generic *.workers.dev URL — only reachable via the custom domain.
+workers_dev = false
+preview_urls = false
+
+# Custom domain (set up as a route on the browser-tools.app zone).
+routes = [
+  { pattern = "api.browser-tools.app", custom_domain = true }
+]
+
+# Per-IP rate-limit counters
+kv_namespaces = [
+  { binding = "RL", id = "ea0cca6930734b79991600170c8254a4" }
+]
+
+# Origin allow-list. After publishing the extension, add its ID here:
+#   ALLOWED_ORIGINS = "chrome-extension://<published-id>"
+# For local/unpacked testing you can temporarily add the unpacked ID too.
+[vars]
+ALLOWED_ORIGINS = ""
+
+# x402 / Arc Testnet payments (see README). Remove PAY_TO to disable the paid
+# path entirely (over-limit analyze then falls back to a plain 429).
+PAY_TO = "0xFB730Cdd4F3859B7B2c4828381596fC93847a9b9"   # owner wallet (agent_state.json)
+ARC_RPC_URL = "https://rpc.testnet.arc.network"
+USDC_ADDRESS = "0x3600000000000000000000000000000000000000"
+CHAIN_ID = "5042002"
+
+# Upstash Redis (required for credits/limits — set as secrets, NOT here):
+#   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
+# Wallet linking (required for credit payments — set as a secret):
+#   LINK_SECRET  — random string; signs the device→wallet bearer tokens
+#   (wrangler secret put LINK_SECRET)
+
+# Secrets (set via `wrangler secret put`, NOT here):
+#   OPENROUTER_KEY  — your OpenRouter API key
+#   CLIENT_TOKEN    — shared token, must match FREE_CLIENT_TOKEN in the extension

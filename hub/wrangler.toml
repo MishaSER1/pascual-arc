@@ -1,0 +1,36 @@
+name = "pascual-hub-api"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+workers_dev = true
+
+# KV for auth nonces + short-lived caches.
+# Create with: npx wrangler kv namespace create SESS
+# then paste the id below.
+[[kv_namespaces]]
+binding = "SESS"
+id = "21a474d034ab4886a920a8f03de4af97"
+
+# D1 for profiles + watchlists.
+# Create with: npx wrangler d1 create pascual-hub
+# then paste database_id below and run: npx wrangler d1 execute pascual-hub --file=schema.sql
+[[d1_databases]]
+binding = "DB"
+database_name = "pascual-hub"
+database_id = "e7e770ce-56e9-4103-b1f4-5f541b10c970"
+
+[vars]
+# CORS. Kept as "*" because each Pages deploy has a unique <hash>.pages.dev
+# origin. Auth is by wallet signature + bearer token, so "*" is acceptable here
+# (no cookies, no ambient authority). Lock to a fixed origin later if desired.
+ALLOWED_ORIGIN = "*"
+ETH_RPC_URL = "https://eth.llamarpc.com"
+
+# Secrets (set via `wrangler secret put`, NOT here):
+#   SESSION_SECRET  — random string, signs session tokens
+#   ALCHEMY_KEY     — free Alchemy API key; enables ERC-20 tokens + activity on
+#                     Ethereum / Base / Polygon. Without it, only native balance
+#                     is shown (Arc uses its own RPC regardless).
+#   OPENROUTER_KEY  — free OpenRouter key; enables the Signal Feed AI digest.
+#                     Without it, news headlines still work; only the AI summary
+#                     is disabled. (Same key type the extension uses.)

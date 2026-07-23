@@ -1,0 +1,398 @@
+/* =============================================================================
+   popup.css — Pascual Reply Design System (Pascual Labs)
+   ============================================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg:          #0c0d18;
+  --bg-2:        #111225;
+  --surface:     rgba(255,255,255,.05);
+  --surface-2:   rgba(255,255,255,.09);
+  --border:      rgba(255,255,255,.09);
+  --border-hi:   rgba(255,255,255,.18);
+  --text:        #eceef5;
+  --muted:       #8b8fa8;
+  --dim:         #5a5d72;
+  --accent:      #8b5cf6; /* Violet */
+  --accent-2:    #e94560; /* Pink/Red */
+  --green:       #10b981;
+  --red:         #ef4444;
+  --grad:        linear-gradient(135deg, #8b5cf6 0%, #e94560 100%);
+  --surface-hover: rgba(255,255,255,.08);
+  --shadow:      0 8px 32px rgba(0,0,0,.5);
+}
+
+:root.theme-light {
+  --bg:          #f4f5fb;
+  --bg-2:        #eaebf5;
+  --surface:     rgba(0,0,0,.05);
+  --surface-2:   rgba(0,0,0,.08);
+  --border:      rgba(0,0,0,.1);
+  --border-hi:   rgba(0,0,0,.2);
+  --text:        #1a1c2e;
+  --muted:       #5a5e78;
+  --dim:         #9a9eb8;
+  --accent:      #7c3aed;
+  --accent-2:    #db2777;
+  --green:       #059669;
+  --red:         #dc2626;
+  --grad:        linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+  --surface-hover: rgba(0,0,0,.06);
+  --shadow:      0 8px 32px rgba(0,0,0,.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  width: 350px;
+  min-height: 480px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  transition: background .25s ease, color .25s ease;
+}
+
+.bg-glow {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(280px 200px at 10% -10%, rgba(139,92,246,.25), transparent 70%),
+    radial-gradient(280px 240px at 90% 110%, rgba(233,69,96,.15), transparent 70%);
+  opacity: 1;
+  transition: opacity .3s ease;
+}
+.theme-light .bg-glow { opacity: 0; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: var(--grad);
+  display: grid; place-items: center;
+  box-shadow: 0 0 12px rgba(139,92,246,.4);
+}
+.brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+.brand-name {
+  font-size: .95rem; font-weight: 700; letter-spacing: -.01em;
+  background: var(--grad);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.brand-sub { font-size: .68rem; color: var(--muted); font-family: "JetBrains Mono", monospace; }
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.theme-btn {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border-hi);
+  border-radius: 9px;
+  background: var(--surface);
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: all .2s;
+  color: var(--muted);
+}
+.theme-btn:hover { background: var(--surface-hover); border-color: var(--accent); color: var(--text); transform: translateY(-1px); }
+.theme-btn svg { width: 14px; height: 14px; fill: currentColor; }
+.theme-btn .icon-moon { display: block; }
+.theme-btn .icon-sun  { display: none; }
+.theme-light .theme-btn .icon-moon { display: none; }
+.theme-light .theme-btn .icon-sun  { display: block; }
+
+/* ── Content ────────────────────────────────────────────────────────────── */
+.content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-label {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+/* ── Custom Select / Options ────────────────────────────────────────────── */
+.select-wrap { position: relative; }
+.select-wrap select {
+  width: 100%; appearance: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+  font-size: .88rem;
+  padding: 10px 32px 10px 12px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color .2s, background .2s;
+}
+.select-wrap select:focus { border-color: var(--accent); background: var(--bg-2); }
+.select-wrap::after {
+  content: "";
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--muted);
+  pointer-events: none;
+}
+
+/* ── Mode selector buttons ──────────────────────────────────────────────── */
+.mode-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: var(--surface);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.mode-btn {
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+.mode-btn.active {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+
+/* ── Inputs ─────────────────────────────────────────────────────────────── */
+.input-wrap {
+  position: relative;
+}
+.input-field {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+  font-size: .82rem;
+  padding: 10px 12px;
+  outline: none;
+  transition: all .2s;
+}
+.input-field:focus {
+  border-color: var(--accent);
+  background: var(--bg-2);
+}
+.input-hint {
+  font-size: .7rem;
+  color: var(--dim);
+  margin-top: 4px;
+  line-height: 1.35;
+}
+.input-hint a { color: var(--accent); text-decoration: none; }
+.input-hint a:hover { text-decoration: underline; }
+
+/* ── Pill selectors for quick values ────────────────────────────────────── */
+.pill-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.pill {
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  user-select: none;
+}
+.pill:hover { border-color: var(--border-hi); color: var(--text); }
+.pill.active {
+  background: var(--grad);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(139,92,246,.3);
+}
+
+/* ── Panel / Card ───────────────────────────────────────────────────────── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.panel-title {
+  font-size: .8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* ── Action Buttons ─────────────────────────────────────────────────────── */
+.btn-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: .86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hi);
+  transform: translateY(-1px);
+}
+.btn-primary {
+  background: var(--grad);
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(139,92,246,.3);
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* ── Logs Area ──────────────────────────────────────────────────────────── */
+.logs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: 6px;
+}
+.log-info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .78rem;
+  color: var(--muted);
+}
+.log-count {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 600;
+  color: var(--accent-2);
+}
+.log-btn-download {
+  width: 100%;
+  background: var(--grad);
+  border: none;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: .88rem;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 4px 12px rgba(139,92,246,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.log-btn-download:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.log-btn-clear {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  padding: 8px;
+  border-radius: 10px;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+.log-btn-clear:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .72rem;
+  color: var(--dim);
+}
+.footer-brand {
+  font-family: "JetBrains Mono", monospace;
+}
+.footer-brand span {
+  color: var(--accent);
+  font-weight: 600;
+}
+.footer-link {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s;
+}
+.footer-link:hover {
+  color: var(--accent-2);
+}
+
+/* Helper hidden class */
+.hidden {
+  display: none !important;
+}
+
+/* Price hints inside select or labels */
+.price-hint {
+  font-size: .7rem;
+  color: var(--dim);
+  font-family: "JetBrains Mono", monospace;
+  margin-top: 3px;
+  display: block;
+}

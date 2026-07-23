@@ -1,0 +1,62 @@
+# ============================================================
+# СЕКРЕТЫ — НИКОГДА не коммитить (приватные ключи, токены, прокси)
+# ============================================================
+.env
+.env.*
+!.env.example
+*.secrets.local
+.secrets.local
+**/.secrets.local
+recovery_file.dat
+agent_state.json
+job_state.json
+
+# Cloudflare / Wrangler локальное состояние
+**/.wrangler/
+.dev.vars
+**/.dev.vars
+
+# Зависимости и сборки
+node_modules/
+**/node_modules/
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Крупные бинарники / архивы (не для репо)
+*.zip
+*.png
+*.jpg
+overclock/
+overclock_clean/
+arc-game/
+.history/
+.agents/
+
+# Архивы/справочное (не код проекта — не нужно ревьюеру гранта)
+Chat/
+data/
+OVERCLOCK_Game_Design_Document.md
+OVERCLOCK_OnChain_Quest_Spec.md
+arc_runner*.html
+arc_update_script.py
+circle_setup.html
+analysis.md
+skills-lock.json
+
+# Дубли-версии скриптов (оставляем только финальные 1-5)
+*_v1.py
+*_v2.py
+*_post_v1.py
+*_post_v2.py
+2_encrypt_local.py
+
+# Локальные памятки секретов
+worker-src/CLIENT_TOKEN.txt
+**/CLIENT_TOKEN.txt
+
+# ОС
+.DS_Store
+Thumbs.db

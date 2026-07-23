@@ -1,0 +1,9 @@
+# Secrets — never commit
+.secrets.local
+worker-src/.secrets.local
+.env
+worker-src/.dev.vars
+
+# Cloudflare/Wrangler local state
+worker-src/.wrangler/
+node_modules/
